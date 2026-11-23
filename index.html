@@ -31,7 +31,7 @@
     const raw = await fetchRaw();
     checkData(raw);
     window.DB = mapDB(raw);
-    for (const f of ["js/core.js", "js/fit.js", "js/home_measure.js", "js/browse.js", "js/records_my.js", "js/v06.js"]) await new Promise((ok, ko) => { const s = document.createElement('script'); s.src = f + '?v=' + DATA_VER; s.onload = ok; s.onerror = () => ko(new Error(f + ' 로드 실패')); document.body.appendChild(s); });
+    for (const f of ["js/core.js", "js/fit.js", "js/home_measure.js", "js/browse.js", "js/records_my.js", "js/v06.js", "js/router.js"]) await new Promise((ok, ko) => { const s = document.createElement('script'); s.src = f + '?v=' + DATA_VER; s.onload = ok; s.onerror = () => ko(new Error(f + ' 로드 실패')); document.body.appendChild(s); });
   } catch (e) {
     console.error(e);
     document.getElementById('view').innerHTML = '<div class="pad" style="text-align:center;padding-top:96px"><h1 class="big">데이터를 불러오지 못했어요</h1><p class="sm mute" style="margin-top:8px">GitHub Pages 주소로 열거나, 로컬에서는 <code>python -m http.server 8000</code> 으로 실행해 주세요.<br>(index.html을 더블클릭하면 브라우저가 JSON 읽기를 막아요)</p></div>';
