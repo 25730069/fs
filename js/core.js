@@ -432,14 +432,6 @@ function autoCar() {
 let AUTOID = 0;
 function syncCars() { autoCar(); document.querySelectorAll('.car').forEach(c => { const h = c.querySelector('.hscroll, [data-sc]'); if (!h) return; c.classList.toggle('no-p', h.scrollLeft < 4); c.classList.toggle('no-n', h.scrollLeft + h.clientWidth >= h.scrollWidth - 4); }); }
 document.addEventListener('scroll', e => { const t = e.target; if (t.classList && (t.classList.contains('hscroll') || t.dataset.sc)) syncCars(); }, true);
-/* 마우스 드래그로도 가로 스크롤 */
-(() => { let d = null, moved = false;
-  document.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; const el = e.target.closest('.hscroll, [data-sc]'); if (!el || e.target.closest('input,select,textarea')) return; d = { el, x: e.clientX, l: el.scrollLeft }; moved = false; });
-  document.addEventListener('pointermove', e => { if (!d) return; const dx = e.clientX - d.x; if (Math.abs(dx) > 5) { moved = true; d.el.style.scrollBehavior = 'auto'; d.el.style.scrollSnapType = 'none'; d.el.scrollLeft = d.l - dx; } });
-  const end = () => { if (!d) return; const el = d.el; d = null; setTimeout(() => { el.style.scrollBehavior = ''; el.style.scrollSnapType = ''; }, 0); };
-  document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
-  document.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
-})();
 /* 빈 상태: 기본 문구는 "결과 없음", 아래에 다음 행동 버튼 하나. 필드 하나가 비었을 땐 NO_INFO */
 const NO_INFO = '정보 없음';
 const emptyHTML = (sub = '', btn = '', pad = '') => `<div class="empty" ${pad ? `style="padding:${pad}"` : ''}><b class="en">결과 없음</b>${sub ? `<span class="sm">${sub}</span>` : ''}${btn ? `<div class="mt12">${btn}</div>` : ''}</div>`;

@@ -291,8 +291,6 @@ table.t .hl{background:var(--okbg);color:var(--ok);font-weight:700}
 
 /* ---------- v4: 가로 스크롤 + 넘김 버튼 ---------- */
 .car{position:relative}
-.car .hscroll{scroll-behavior:smooth;scroll-snap-type:x proximity}
-.car .hscroll>*{scroll-snap-align:start}
 .car-b{position:absolute;top:50%;transform:translateY(-70%);width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);background:color-mix(in srgb,var(--s0) 94%,transparent);box-shadow:0 2px 8px rgba(0,0,0,.16);display:grid;place-items:center;z-index:3;padding:0}
 .car-b svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .car-b.p{left:6px}.car-b.n{right:6px}
@@ -356,9 +354,8 @@ table.t .hl{background:var(--okbg);color:var(--ok);font-weight:700}
 /* v5 */
 .car.sm .car-b{top:50%;transform:translateY(-50%);width:28px;height:28px}
 .car.sm .car-b svg{width:14px;height:14px}
-.car [data-sc]{scroll-behavior:smooth}
 .car>.chips.scroll,.car>.initrow{padding-left:0;padding-right:0}
-.hscroll,[data-sc]{cursor:grab}
+
 .empty .en{display:block;font-size:15px;color:var(--ink);margin-bottom:2px}
 .empty{padding:28px 16px}
 
