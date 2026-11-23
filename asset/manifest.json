@@ -1,0 +1,292 @@
+{
+ "brands": {
+  "BR001": "asset/brands/BR001.webp",
+  "BR002": "asset/brands/BR002.webp",
+  "BR003": "asset/brands/BR003.webp",
+  "BR004": "asset/brands/BR004.webp",
+  "BR005": "asset/brands/BR005.webp",
+  "BR006": "asset/brands/BR006.webp",
+  "BR007": "asset/brands/BR007.webp",
+  "BR008": "asset/brands/BR008.webp",
+  "BR009": "asset/brands/BR009.webp",
+  "BR010": "asset/brands/BR010.webp",
+  "BR011": "asset/brands/BR011.webp",
+  "BR012": "asset/brands/BR012.webp",
+  "BR013": "asset/brands/BR013.webp",
+  "BR014": "asset/brands/BR014.webp",
+  "BR015": "asset/brands/BR015.webp",
+  "BR016": "asset/brands/BR016.webp",
+  "BR017": "asset/brands/BR017.webp",
+  "BR018": "asset/brands/BR018.webp",
+  "BR019": "asset/brands/BR019.webp",
+  "BR020": "asset/brands/BR020.webp",
+  "BR021": "asset/brands/BR021.webp",
+  "BR022": "asset/brands/BR022.webp",
+  "BR023": "asset/brands/BR023.webp",
+  "BR024": "asset/brands/BR024.webp",
+  "BR025": "asset/brands/BR025.webp",
+  "BR026": "asset/brands/BR026.webp",
+  "BR027": "asset/brands/BR027.webp",
+  "BR028": "asset/brands/BR028.webp",
+  "BR029": "asset/brands/BR029.webp",
+  "BR030": "asset/brands/BR030.webp",
+  "BR031": "asset/brands/BR031.webp",
+  "BR032": "asset/brands/BR032.webp",
+  "BR033": "asset/brands/BR033.webp",
+  "BR034": "asset/brands/BR034.webp",
+  "BR035": "asset/brands/BR035.webp",
+  "BR036": "asset/brands/BR036.webp",
+  "BR037": "asset/brands/BR037.webp",
+  "BR038": "asset/brands/BR038.webp",
+  "BR039": "asset/brands/BR039.webp",
+  "BR040": "asset/brands/BR040.webp",
+  "BR041": "asset/brands/BR041.webp",
+  "BR042": "asset/brands/BR042.webp",
+  "BR043": "asset/brands/BR043.webp",
+  "BR044": "asset/brands/BR044.webp",
+  "BR045": "asset/brands/BR045.webp",
+  "BR046": "asset/brands/BR046.webp",
+  "BR047": "asset/brands/BR047.webp",
+  "BR048": "asset/brands/BR048.webp",
+  "BR049": "asset/brands/BR049.webp",
+  "BR050": "asset/brands/BR050.webp",
+  "BR051": "asset/brands/BR051.webp",
+  "BR052": "asset/brands/BR052.webp",
+  "BR053": "asset/brands/BR053.webp",
+  "BR054": "asset/brands/BR054.webp",
+  "BR055": "asset/brands/BR055.webp",
+  "BR056": "asset/brands/BR056.webp",
+  "BR057": "asset/brands/BR057.webp",
+  "BR058": "asset/brands/BR058.webp",
+  "BR059": "asset/brands/BR059.webp",
+  "BR060": "asset/brands/BR060.webp",
+  "BR061": "asset/brands/BR061.webp",
+  "BR062": "asset/brands/BR062.webp",
+  "BR063": "asset/brands/BR063.webp",
+  "BR064": "asset/brands/BR064.webp"
+ },
+ "kinds": {
+  "가디건": {
+   "slug": "cardigan",
+   "category": "상의",
+   "photo": "asset/kinds/cardigan.webp",
+   "banner": "asset/categories/cardigan.webp"
+  },
+  "긴소매 티셔츠": {
+   "slug": "longsleeve-tee",
+   "category": "상의",
+   "photo": "asset/kinds/longsleeve-tee.webp",
+   "banner": "asset/categories/longsleeve-tee.webp"
+  },
+  "니트": {
+   "slug": "knit",
+   "category": "상의",
+   "photo": "asset/kinds/knit.webp",
+   "banner": "asset/categories/knit.webp"
+  },
+  "맨투맨": {
+   "slug": "sweatshirt",
+   "category": "상의",
+   "photo": "asset/kinds/sweatshirt.webp",
+   "banner": "asset/categories/sweatshirt.webp"
+  },
+  "블라우스": {
+   "slug": "blouse",
+   "category": "상의",
+   "photo": "asset/kinds/blouse.webp",
+   "banner": "asset/categories/blouse.webp"
+  },
+  "셔츠": {
+   "slug": "shirt",
+   "category": "상의",
+   "photo": "asset/kinds/shirt.webp",
+   "banner": "asset/categories/shirt.webp"
+  },
+  "슬리브리스": {
+   "slug": "sleeveless",
+   "category": "상의",
+   "photo": "asset/kinds/sleeveless.webp",
+   "banner": "asset/categories/sleeveless.webp"
+  },
+  "크롭 티셔츠": {
+   "slug": "crop-tee",
+   "category": "상의",
+   "photo": "asset/kinds/crop-tee.webp",
+   "banner": "asset/categories/crop-tee.webp"
+  },
+  "티셔츠": {
+   "slug": "tee",
+   "category": "상의",
+   "photo": "asset/kinds/tee.webp",
+   "banner": "asset/categories/tee.webp"
+  },
+  "폴로 셔츠": {
+   "slug": "polo",
+   "category": "상의",
+   "photo": "asset/kinds/polo.webp",
+   "banner": "asset/categories/polo.webp"
+  },
+  "후드 티셔츠": {
+   "slug": "hoodie",
+   "category": "상의",
+   "photo": "asset/kinds/hoodie.webp",
+   "banner": "asset/categories/hoodie.webp"
+  },
+  "데님 재킷": {
+   "slug": "denim-jacket",
+   "category": "아우터",
+   "photo": "asset/kinds/denim-jacket.webp",
+   "banner": "asset/categories/denim-jacket.webp"
+  },
+  "레더 재킷": {
+   "slug": "leather-jacket",
+   "category": "아우터",
+   "photo": "asset/kinds/leather-jacket.webp",
+   "banner": "asset/categories/leather-jacket.webp"
+  },
+  "바람막이": {
+   "slug": "windbreaker",
+   "category": "아우터",
+   "photo": "asset/kinds/windbreaker.webp",
+   "banner": "asset/categories/windbreaker.webp"
+  },
+  "블레이저": {
+   "slug": "blazer",
+   "category": "아우터",
+   "photo": "asset/kinds/blazer.webp",
+   "banner": "asset/categories/blazer.webp"
+  },
+  "블루종": {
+   "slug": "blouson",
+   "category": "아우터",
+   "photo": "asset/kinds/blouson.webp",
+   "banner": "asset/categories/blouson.webp"
+  },
+  "숏 패딩": {
+   "slug": "short-padding",
+   "category": "아우터",
+   "photo": "asset/kinds/short-padding.webp",
+   "banner": "asset/categories/short-padding.webp"
+  },
+  "코트": {
+   "slug": "coat",
+   "category": "아우터",
+   "photo": "asset/kinds/coat.webp",
+   "banner": "asset/categories/coat.webp"
+  },
+  "트렌치 코트": {
+   "slug": "trench-coat",
+   "category": "아우터",
+   "photo": "asset/kinds/trench-coat.webp",
+   "banner": "asset/categories/trench-coat.webp"
+  },
+  "트위드 재킷": {
+   "slug": "tweed-jacket",
+   "category": "아우터",
+   "photo": "asset/kinds/tweed-jacket.webp",
+   "banner": "asset/categories/tweed-jacket.webp"
+  },
+  "패딩": {
+   "slug": "padding",
+   "category": "아우터",
+   "photo": "asset/kinds/padding.webp",
+   "banner": "asset/categories/padding.webp"
+  },
+  "플리스 재킷": {
+   "slug": "fleece-jacket",
+   "category": "아우터",
+   "photo": "asset/kinds/fleece-jacket.webp",
+   "banner": "asset/categories/fleece-jacket.webp"
+  },
+  "후드 집업": {
+   "slug": "hoodie-zipup",
+   "category": "아우터",
+   "photo": "asset/kinds/hoodie-zipup.webp",
+   "banner": "asset/categories/hoodie-zipup.webp"
+  },
+  "니트 원피스": {
+   "slug": "knit-dress",
+   "category": "원피스",
+   "photo": "asset/kinds/knit-dress.webp",
+   "banner": "asset/categories/knit-dress.webp"
+  },
+  "롱 원피스": {
+   "slug": "long-dress",
+   "category": "원피스",
+   "photo": "asset/kinds/long-dress.webp",
+   "banner": "asset/categories/long-dress.webp"
+  },
+  "미니 원피스": {
+   "slug": "mini-dress",
+   "category": "원피스",
+   "photo": "asset/kinds/mini-dress.webp",
+   "banner": "asset/categories/mini-dress.webp"
+  },
+  "셔츠 원피스": {
+   "slug": "shirt-dress",
+   "category": "원피스",
+   "photo": "asset/kinds/shirt-dress.webp",
+   "banner": "asset/categories/shirt-dress.webp"
+  },
+  "슬리브리스 원피스": {
+   "slug": "sleeveless-dress",
+   "category": "원피스",
+   "photo": "asset/kinds/sleeveless-dress.webp",
+   "banner": "asset/categories/sleeveless-dress.webp"
+  },
+  "데님 팬츠": {
+   "slug": "denim-pants",
+   "category": "하의",
+   "photo": "asset/kinds/denim-pants.webp",
+   "banner": "asset/categories/denim-pants.webp"
+  },
+  "레깅스": {
+   "slug": "leggings",
+   "category": "하의",
+   "photo": "asset/kinds/leggings.webp",
+   "banner": "asset/categories/leggings.webp"
+  },
+  "숏 팬츠": {
+   "slug": "shorts",
+   "category": "하의",
+   "photo": "asset/kinds/shorts.webp",
+   "banner": "asset/categories/shorts.webp"
+  },
+  "스커트": {
+   "slug": "skirt",
+   "category": "하의",
+   "photo": "asset/kinds/skirt.webp",
+   "banner": "asset/categories/skirt.webp"
+  },
+  "슬랙스": {
+   "slug": "slacks",
+   "category": "하의",
+   "photo": "asset/kinds/slacks.webp",
+   "banner": "asset/categories/slacks.webp"
+  },
+  "조거 팬츠": {
+   "slug": "jogger-pants",
+   "category": "하의",
+   "photo": "asset/kinds/jogger-pants.webp",
+   "banner": "asset/categories/jogger-pants.webp"
+  },
+  "카고 팬츠": {
+   "slug": "cargo-pants",
+   "category": "하의",
+   "photo": "asset/kinds/cargo-pants.webp",
+   "banner": "asset/categories/cargo-pants.webp"
+  },
+  "코튼 팬츠": {
+   "slug": "cotton-pants",
+   "category": "하의",
+   "photo": "asset/kinds/cotton-pants.webp",
+   "banner": "asset/categories/cotton-pants.webp"
+  },
+  "트레이닝 팬츠": {
+   "slug": "training-pants",
+   "category": "하의",
+   "photo": "asset/kinds/training-pants.webp",
+   "banner": "asset/categories/training-pants.webp"
+  }
+ }
+}
