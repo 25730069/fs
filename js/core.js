@@ -210,7 +210,7 @@ function render(keepScroll) {
   if (cur.v === 'result') t = cur.p.rid ? 'records' : 'measure';
   if (cur.v === 'saved' && cur.p.rid) t = 'records';
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-  if (typeof ensureNotifs === 'function') { ensureNotifs(); const nd = $('#nfdot'); if (nd) nd.hidden = !S.notifs.some(n => !n.read); const nb = $('#ab-notif'); if (nb) nb.classList.toggle('on', cur.v === 'notifs'); }
+  if (typeof ensureNotifs === 'function') { ensureNotifs(); const nd = $('#nfdot'); if (nd) nd.hidden = !(S.loggedIn && S.notifs.some(n => !n.read)); const nb = $('#ab-notif'); if (nb) nb.classList.toggle('on', cur.v === 'notifs'); }
   const lk = $('#ab-likes'); if (lk) lk.classList.toggle('on', cur.v === 'likes');
   syncCars();
   if (V[cur.v + '$after']) V[cur.v + '$after'](cur.p);
@@ -307,6 +307,7 @@ function sizeVerdict(cat, ev) {
 
 /* ---------- 컬러 · 상품 속성 라벨 ---------- */
 const COLOR_HEX = { 블랙: '#1b1b1d', 그레이: '#9a9ca3', 베이지: '#d8c6a3', 아이보리: '#f3eedd', 화이트: '#ffffff', 네이비: '#1f2a4d', 카키: '#6b6b3f', 차콜: '#44464c', 진청: '#2c4a78', 연청: '#8fb0d6', 스카이블루: '#87c3ec', 핑크: '#f2a9c2', 브라운: '#6f4e37', 블루: '#2f6fd0', 레드: '#d23b3b', 그린: '#3f8f5a', 옐로우: '#f1cf4b', 퍼플: '#7a4fb0', 오렌지: '#ef8a3a', 민트: '#9fdcc8', 와인: '#6d1f3a' };
+const COLOR_ORD = ['블랙', '차콜', '그레이', '화이트', '아이보리', '베이지', '브라운', '네이비', '진청', '연청', '스카이블루', '블루', '민트', '그린', '카키', '옐로우', '오렌지', '레드', '핑크', '퍼플', '와인'];   // 모든 색상 선택 UI 공통 순서(상품 필터 · 옷 입력)
 const cdot = c => `<i class="cdot ${['화이트', '아이보리'].includes(c) ? 'lt' : ''}" style="background:${COLOR_HEX[c] || '#bbb'}" title="${esc(c)}"></i>`;
 const FIT_LBL = { 슬림: '슬림핏', 레귤러: '레귤러핏', 오버: '오버핏' };
 const attrCount = (ps, f) => { const m = {}; ps.forEach(p => { const v = f(p); (Array.isArray(v) ? v : [v]).forEach(x => { if (x) m[x] = (m[x] || 0) + 1; }); }); return Object.entries(m).sort((a, b) => b[1] - a[1]); };

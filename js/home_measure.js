@@ -15,26 +15,25 @@ let BD = {};
 const loadBD = () => { BD = S.body ? { ...S.body } : { h: '', w: '', pref: '기본 핏' }; };
 const DETAILS = [['sho', '어깨너비', '어깨'], ['chest', '가슴둘레', '가슴'], ['waist', '허리둘레', '허리'], ['hip', '엉덩이둘레', '힙'], ['thigh', '허벅지둘레', '허벅지'], ['arm', '팔길이', '소매']];
 const bdCount = () => DETAILS.filter(d => BD[d[0]] !== undefined && BD[d[0]] !== '' && BD[d[0]] !== null).length;
-const accText = n => n >= 5 ? '정확도 높음 · 추정 없이 내 치수로 계산해요' : n >= 2 ? '정확도 보통 · 빈 칸은 키·몸무게로 추정해요' : '정확도 기본 · 세부 치수를 넣을수록 핏 판정이 정확해져요';
 function bodyFormHTML() {
   const bv = bodyVals(BD), n = bdCount();
   const f = (k, label, unit, ph) => `<div><label class="f" for="bd-${k}">${label}</label><div class="unit"><input id="bd-${k}" class="inp num" inputmode="decimal" data-i="bd" data-k="${k}" value="${esc(BD[k] ?? '')}" placeholder="${ph}"><i>${unit}</i></div></div>`;
   return `<div class="grid2 field">${f('h', '키 *', 'cm', '160')}${f('w', '몸무게 *', 'kg', '52')}</div>
-  <div class="detail-card field"><div class="row between"><b style="font-size:17px">세부 치수 입력</b><button class="btn s" data-a="measureHow">재는 법 ⓘ</button></div>
+  <div class="detail-card field"><div class="row between"><b style="font-size:17px">세부 치수</b><button class="btn s" data-a="measureHow">재는 법 ⓘ</button></div>
     <div class="row mt8" style="gap:10px"><div class="meter grow"><i id="bd-mt" style="width:${n / 6 * 100}%"></i></div><b class="sm num" id="bd-n">${n}/6</b></div>
-    <p class="hint" id="bd-hint" style="margin:6px 0 12px">${accText(n)}</p>
+    <div style="height:12px"></div>
     <div class="grid2">${DETAILS.map(d => f(d[0], d[1], 'cm', '추정 ' + bv[d[2]])).join('')}</div></div>
-  <div class="field"><label class="f">선호 핏</label>${segHTML(PREFS, BD.pref || '기본 핏', 'bdPref')}<p class="hint">${{ '슬림 핏': '몸에 가깝게 붙는 걸 좋아해요', '기본 핏': '보통 여유로 입어요', '여유 핏': '넉넉하게 입는 걸 좋아해요' }[BD.pref || '기본 핏']}</p></div>`;
+  <div class="field"><label class="f">선호 핏</label>${segHTML(PREFS, BD.pref || '기본 핏', 'bdPref')}</div>`;
 }
-INP.bd = t => { BD[t.dataset.k] = t.value; if (t.dataset.k !== 'h' && t.dataset.k !== 'w') { const n = bdCount(); $('#bd-n').textContent = n + '/6'; $('#bd-mt').style.width = n / 6 * 100 + '%'; $('#bd-hint').textContent = accText(n); } };
+INP.bd = t => { BD[t.dataset.k] = t.value; if (t.dataset.k !== 'h' && t.dataset.k !== 'w') { const n = bdCount(); $('#bd-n').textContent = n + '/6'; $('#bd-mt').style.width = n / 6 * 100 + '%'; } };
 ACT.bdPref = t => { BD.pref = t.dataset.v; reRender(); };
 ACT.measureHow = () => sheet(`<h3>치수 재는 법</h3><div class="list" style="margin:8px -16px 0">${[['어깨너비', '양쪽 어깨 끝점 사이를 일직선으로'], ['가슴둘레', '가슴이 가장 풍만한 곳을 한 바퀴'], ['허리둘레', '배꼽 위 가장 잘록한 곳을 한 바퀴'], ['엉덩이둘레', '엉덩이 가장 튀어나온 곳을 한 바퀴'], ['허벅지둘레', '다리가 갈라지는 지점 바로 아래'], ['팔길이', '어깨 끝에서 손목뼈까지']].map(([a, b]) => `<div class="li" style="padding:10px 16px"><b class="sm" style="width:80px">${a}</b><span class="sm mute">${b}</span></div>`).join('')}</div><button class="btn pri full mt16" data-a="sheetClose">확인</button>`);
 function photoCardHTML() {
   const ph = S.bodyPhoto;
   return `<div class="card" style="padding:14px"><div class="row" style="gap:12px;align-items:flex-start"><label class="upload" for="bphoto" style="width:96px;height:128px;flex:none;border-radius:12px;cursor:pointer">${ph ? `<img src="${ph}" alt="내 전신 사진">` : `<span>${ico('plus', 'ico')}<br><span class="xs">전신 사진</span></span>`}</label>
   <input id="bphoto" type="file" accept="image/*" hidden data-c="bPhoto"><div class="grow"><b>전신 사진 <span class="mute sm">(선택)</span></b>
-  <p class="sm ink2" style="margin:4px 0 8px">숫자만으로는 알 수 없는 <b>실제 핏</b>을 함께 확인하는 데 써요. 한 번 올리면 다음 측정에도 계속 사용돼요.</p>
-  ${ph ? `<div class="row" style="gap:6px"><label class="btn s" for="bphoto" style="cursor:pointer">교체</label><button class="btn s flat" data-a="bPhotoDel">삭제</button></div><p class="hint">저장됨 · 이 기기에만 보관돼요 · <button class="link" data-a="goPhotos">내 사진 관리</button></p>` : `<p class="hint">정면으로 서서, 몸에 붙는 옷, 발끝까지 나오게</p>`}</div></div></div>`;
+  
+  ${ph ? `<div class="row" style="gap:6px"><label class="btn s" for="bphoto" style="cursor:pointer">교체</label><button class="btn s flat" data-a="bPhotoDel">삭제</button></div>` : ``}</div></div></div>`;
 }
 CHG.bPhoto = t => { const f = t.files[0]; if (f) readPhoto(f, 640, d => { if (!d) return; const id = addPhoto('전신', d); S.bodyPhoto = d; S.bodyPhotoId = id; save(); reRender(); }); };
 ACT.bPhotoDel = () => { if (S.bodyPhotoId) delPhoto(S.bodyPhotoId); else { S.bodyPhoto = null; save(); } toast('전신 사진을 삭제했어요'); reRender(); };
@@ -101,21 +100,58 @@ function mySizeCard() {
   ${latest ? `<button class="link xs" data-a="openRecord" data-v="${latest.id}" style="text-decoration:none;margin-top:10px;display:block;text-align:left">최근 분석 · ${esc(latest.productName || latest.brandName)} · 추천 ${latest.rec} ›</button>` : `<button class="link xs" data-a="startMeasure" style="text-decoration:none;margin-top:10px">아직 분석한 옷이 없어요</button>`}<button class="btn pri full mt12" data-a="startMeasure">사이즈 측정하기</button></div>`;
 }
 const homeReview = r => { const pr = prodById[r.p], u = DB.U[r.u]; return `<button class="li" data-a="openReview" data-v="${r.id}" style="align-items:flex-start;padding:12px 16px"><span class="avatar sm">이미지</span><span class="grow" style="min-width:0"><span class="row between"><span><b class="sm">${esc(nickOfU(r.u))}</b> <span class="xs mute">${uidOf(r.u)}</span></span>${stars(r.rt)}</span><span class="xs mute" style="display:block">${u[0]}cm · ${u[1]}kg · ${r.sz} 착용 · ${esc(pr.n)}</span><span class="sm" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px">${esc(r.t)}</span></span></button>`; };
+const szb = sz => sz ? `<span class="szb">${esc(sz)}</span>` : '';
+const vdTxt = o => !o ? '' : o.state === 'nofit' ? '맞는 사이즈 없음' : o.state === 'caution' ? `${o.best} · ${o.worst.part} 주의` : `${o.best} 맞아요`;
+const vdCls = o => o ? 'v-' + o.state : '';
+const pCard = (p, size) => { const o = S.body ? productOutcome(p, S.body) : null; return `<button class="mini" data-a="openProduct" data-v="${p.id}"><div class="ph"><span>이미지</span>${pimg(p.id)}</div><div class="bn6">${esc(brandById[p.b].n)}</div><div class="sm clamp2">${esc(p.n)}</div><div class="num b" style="margin-top:2px">${won(p.pr)}</div>${o ? `<div class="vd ${vdCls(o)}">${vdTxt(o)}</div>` : ''}</button>`; };
+const br = t => esc(t).replace(/\n/g, '<br>');
+function bannerHTML() {
+  const b = S.body, cm = collections(), cs = COLLS.filter(c => cm[c.id].length);
+  if (!cs.length) return '';
+  return `<div class="hb"><div class="hb-track" id="hb-track">${cs.map(c => `<button class="hb-s ${c.color}" data-a="openColl" data-v="${c.id}"><span class="hb-sub">${b ? `${b.h} · ${b.w} 기준 ` : ''}${cm[c.id].length}개</span><span class="hb-t">${br(c.t)}</span><span class="hb-go">모아보기 →</span></button>`).join('')}</div><span class="hb-n" id="hb-n">1 / ${cs.length}</span></div>`;
+}
+let hbTimer = null;
+V['home$after'] = () => {
+  const t = $('#hb-track'), n = $('#hb-n'); clearInterval(hbTimer); if (!t || !n) return;
+  const total = t.children.length, idx = () => Math.round(t.scrollLeft / t.clientWidth), go2 = i => t.scrollTo({ left: ((i % total) + total) % total * t.clientWidth, behavior: 'smooth' });
+  t.onscroll = () => { n.textContent = (idx() + 1) + ' / ' + total; };
+  /* PC: 마우스로 끌어서 넘기기(터치·트랙패드는 기본 스크롤) */
+  let sx = 0, sl = 0, drag = false, moved = false;
+  t.onpointerdown = e => { if (e.pointerType !== 'mouse') return; drag = true; moved = false; sx = e.clientX; sl = t.scrollLeft; t.style.scrollSnapType = 'none'; t.style.cursor = 'grabbing'; };
+  window.onpointermove = e => { if (!drag) return; const dx = e.clientX - sx; if (Math.abs(dx) > 5) moved = true; t.scrollLeft = sl - dx; };
+  window.onpointerup = e => { if (!drag) return; drag = false; t.style.cursor = ''; const dx = e.clientX - sx, base = Math.round(sl / t.clientWidth); t.style.scrollSnapType = ''; go2(Math.abs(dx) > 60 ? base + (dx < 0 ? 1 : -1) : base); };
+  t.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+  /* 자동 전환 5초 (마우스를 올리거나 끌고 있으면 멈춤) */
+  let hover = false; t.onmouseenter = () => hover = true; t.onmouseleave = () => hover = false;
+  hbTimer = setInterval(() => { if (!document.body.contains(t)) { clearInterval(hbTimer); return; } if (!hover && !drag) go2(idx() + 1); }, 5000);
+};
+ACT.openColl = t => go('collection', { id: t.dataset.v });
+V.collection = p => {
+  const c = COLLS.find(x => x.id === p.id), list = collections()[p.id] || [], b = S.body;
+  return `${topbar(c.t.replace('\n', ' '))}
+  <div class="pad" style="padding-bottom:4px"><span class="sm mute">${b ? `${b.h} · ${b.w} 기준 ` : ''}${list.length}개</span></div>
+  <div class="cgrid">${list.slice(0, 40).map(x => pCard(x.p, x.size)).join('') || '<div class="empty">상품이 없어요</div>'}</div><div style="height:24px"></div>`;
+};
+function myBlock() {
+  const b = S.body;
+  if (!b) return `<div class="blk blue"><b class="blk-t">내 사이즈</b>
+    <div class="row" style="gap:8px;margin-top:12px"><div class="unit grow"><input id="hq-h" class="inp num" inputmode="numeric" aria-label="키" data-i="hq" data-k="h" value="${esc(HQ.h)}" placeholder="키"><i>cm</i></div><div class="unit grow"><input id="hq-w" class="inp num" inputmode="numeric" aria-label="몸무게" data-i="hq" data-k="w" value="${esc(HQ.w)}" placeholder="몸무게"><i>kg</i></div></div>
+    <button class="btn pri full mt12" data-a="hqSave">내 사이즈 보기</button></div>`;
+  const last = {}; [...S.records].sort((x, y) => y.date.localeCompare(x.date)).forEach(r => { if (!last[r.cat]) last[r.cat] = r; });
+  const sz = c => (last[c] ? last[c].rec : '–');
+  return `<div class="blk blue row between"><button class="blk-main" data-a="goMyfit"><b class="blk-num">${b.h} · ${b.w}</b><span class="blk-sub">상의 ${sz('상의')} · 하의 ${sz('하의')} · 아우터 ${sz('아우터')}</span></button><button class="btn pri" data-a="startMeasure">측정 →</button></div>`;
+}
+const talkRow = r => { const u = DB.U[r.u]; return `<button class="talk" data-a="openReview" data-v="${r.id}"><span class="xs mute">${u[0]} · ${u[1]} · ${esc(r.sz)}</span><span class="talk-t">${esc(r.t)}</span><span class="xs mute">답글 <b style="color:var(--ink)">${repN(r)}</b></span></button>`; };
+const topTalks = (n = 3) => RV.filter(r => genderOk(prodById[r.p] || {})).map(r => ({ r, n: repN(r) })).sort((a, c) => c.n - a.n || a.r.id.localeCompare(c.r.id)).slice(0, n).map(x => x.r);
 V.home = () => {
-  const b = S.body, ranked = brandsRanked(), pp = personalProducts(8), my = S.profile.styles;
-  const sb = my.length ? ranked.filter(r => r.x.st.some(s => my.includes(s))).slice(0, 8) : [];
-  return `<div style="padding:10px 16px 0"><button class="search fake" data-a="homeSearch"><span class="mute">브랜드·상품 검색</span>${ico('search')}</button></div>
-  ${b ? `<div style="padding:12px 16px 0">${mySizeCard()}</div>` : `<div style="padding:12px 16px 0"><div class="card fill" style="padding:16px"><b style="font-size:17px;line-height:1.35">나에게 맞는 추천,<br>30초면 시작돼요</b><p class="sm mute" style="margin:6px 0 12px">키와 몸무게만 알려주면 비슷한 체형의 후기로 추천해 드려요.</p>
-    <div class="row" style="gap:8px"><div class="unit grow"><input id="hq-h" class="inp num" inputmode="numeric" aria-label="키" data-i="hq" data-k="h" value="${esc(HQ.h)}" placeholder="키"><i>cm</i></div><div class="unit grow"><input id="hq-w" class="inp num" inputmode="numeric" aria-label="몸무게" data-i="hq" data-k="w" value="${esc(HQ.w)}" placeholder="몸무게"><i>kg</i></div></div>
-    <button class="btn pri full mt12" data-a="hqSave">내 추천 보기</button><button class="link xs" data-a="startMeasure" style="display:block;margin:10px auto 0;text-decoration:none">사이즈표로 정확하게 측정하기 ›</button></div></div>`}
-  <div class="quick">${QUICK.map(c => `<button data-a="plGo" data-pl="${esc(JSON.stringify({ c }))}"><span class="ph"><span>이미지</span></span><span>${c}</span></button>`).join('')}</div>
-  ${b ? `<div class="sec"><div class="sec-h"><h3>나를 위한 추천 상품</h3><button class="link" data-a="plGo" data-pl="${esc(JSON.stringify({}))}">전체 ›</button></div><p class="sub" style="margin-bottom:8px">키 ${b.h}cm·${b.w}kg과 가장 비슷한 체형의 후기${my.length ? `와 선택한 스타일(${my.join('·')})` : ''}를 바탕으로 골랐어요.</p></div>${pp.length ? carousel('pp', pp.map(x => miniCard(x.p, `<div class="xs" style="color:var(--ok);font-weight:700;margin-top:2px">비슷한 체형 ${x.users}명 · ${x.size} 추천</div>${x.sm ? `<div class="xs" style="color:var(--ink2);margin-top:1px">스타일 일치 · ${esc(brandById[x.p.b].st.filter(s => my.includes(s)).join('·'))}</div>` : ''}`)).join('')) : '<div class="empty" style="padding:16px">아직 비슷한 체형의 후기가 부족해요</div>'}`
-    : `<div class="sec"><div class="sec-h"><h3>인기 상품</h3><button class="link" data-a="plGo" data-pl="${esc(JSON.stringify({}))}">전체 ›</button></div><p class="sub" style="margin-bottom:8px">키·몸무게를 입력하면 <b>나를 위한 추천 상품</b>으로 바뀌어요.</p></div>${carousel('pop', popularProducts().map(p => miniCard(p, '')).join(''))}`}
-  ${my.length ? `<div class="sec"><div class="sec-h"><h3>나를 위한 추천 브랜드</h3><button class="link" data-a="goStyleSet">${my.join(' · ')} ›</button></div></div>${carousel('sb', (sb.length ? sb : ranked.slice(0, 6)).map(brandCard).join(''))}`
-    : `<div class="sec"><div class="sec-h"><h3>${b ? '나를 위한 추천 브랜드' : '인기 브랜드'}</h3><button class="link" data-a="goTab" data-v="brand">더보기 ›</button></div>${b ? '' : '<p class="sub" style="margin-bottom:8px">키·몸무게나 스타일을 알려주면 <b>나를 위한 추천 브랜드</b>로 바뀌어요.</p>'}</div>${carousel('br', ranked.slice(0, 6).map(brandCard).join(''))}
-  <div style="padding:0 16px"><div class="card fill row between" style="padding:12px 14px"><span class="sm">좋아하는 스타일을 골라보세요</span><button class="btn s flat" data-a="goStyleSet">스타일 설정</button></div></div>`}
-  <div class="sec"><div class="sec-h"><h3>사이즈별 추천 브랜드</h3></div><div class="chips">${chipsHTML(SZ, HSZ, 'hSize')}</div></div>
-  <div class="list" style="margin:4px 4px 0">${brandsBySize(HSZ).map(r => `<button class="brand-row" data-a="openBrand" data-v="${r.b.id}"><span class="logo im">이미지</span><span class="grow"><b>${esc(r.b.n)}</b><span class="sm mute" style="display:block">${HSZ} 구매 후기 ${r.n}건</span></span><span class="pill ok">정사이즈 ${r.pct}%</span></button>`).join('') || '<div class="empty" style="padding:16px">후기가 부족해요</div>'}</div>
+  const b = S.body, pp = personalProducts(8);
+  const top = (() => { const l = [...S.records].sort((x, y) => y.date.localeCompare(x.date)).find(r => r.cat === '상의'); return l ? l.rec : 'M'; })();
+  const bs = brandsBySize(top);
+  return `${bannerHTML()}${myBlock()}
+  <div class="sec" style="padding-top:28px"><div class="sec-h"><h3>${b ? '나와 같은 체형이 산 옷' : '인기 상품'}</h3><button class="link" data-a="plGo" data-pl="${esc(JSON.stringify({}))}">전체</button></div></div>
+  ${b ? (pp.length ? carousel('pp', pp.map(x => pCard(x.p, x.size)).join('')) : '<div class="empty" style="padding:16px">비슷한 체형의 후기가 아직 부족해요</div>') : carousel('pop', popularProducts().map(p => pCard(p)).join(''))}
+  ${bs.length ? `<div class="sec" style="padding-top:28px"><div class="sec-h"><h3>${top}으로 입기 좋은 브랜드</h3><button class="link" data-a="goTab" data-v="brand">전체</button></div></div><div class="list" style="margin:0 4px">${bs.map(r => `<button class="brand-row" data-a="openBrand" data-v="${r.b.id}"><span class="logo im">이미지</span><span class="grow"><b>${esc(r.b.n)}</b></span><span class="chev">${ico('chev', 'ico')}</span></button>`).join('')}</div>` : ''}
+  <div class="sec" style="padding-top:28px"><div class="sec-h"><h3>사이즈 토크</h3></div></div><div style="padding:0 16px">${topTalks().map(talkRow).join('')}</div>
   <div style="height:24px"></div>`;
 };
 let HQ = { h: '', w: '' };
@@ -144,8 +180,7 @@ const stepper = s => `<div class="stepper"><button class="${s === 1 ? 'on' : 'do
 V.measure = () => {
   if (!M) M = newM();
   if (M.step === 1) {
-    return `${topbar('사이즈 측정')}${stepper(1)}<div class="pad"><h1 class="big">내 몸 정보를 알려주세요</h1>
-    <p class="sub">${S.body ? `저장된 프로필을 불러왔어요 · 마지막 수정 ${S.body.updated || '–'}` : '처음 한 번만 입력하면 다음부터 자동으로 불러와요.'}</p><div class="mt16">${bodyFormHTML()}</div>${photoCardHTML()}</div>
+    return `${topbar('사이즈 측정')}${stepper(1)}<div class="pad"><h1 class="big">내 몸 정보</h1><div class="mt16">${bodyFormHTML()}</div>${photoCardHTML()}</div>
     <div class="dock"><button class="btn pri full" data-a="mNext">다음 · 옷 입력</button></div>`;
   }
   const prods = M.brandId ? PR.filter(p => p.b === M.brandId && p.c === M.cat) : [], parts = PARTS[M.cat], prod = M.productId ? prodById[M.productId] : null;
@@ -156,26 +191,26 @@ V.measure = () => {
   <div class="field" style="position:relative"><label class="f" for="ta">브랜드</label>
     <div class="search"><input id="ta" class="inp" autocomplete="off" placeholder="브랜드 검색 (초성 가능 · 예: ㅇㄴㅋㄹ)" data-i="ta" value="${esc(M.brandText)}" onfocus="taShow()">${ico('search')}</div>
     <div id="ta-list" hidden></div>
-    ${!M.brandId && M.brandText.trim() ? `<div class="hint">목록에 없는 브랜드는 입력한 이름 그대로 사용해요.</div>` : ''}</div>
-  ${prods.length ? `<div class="field"><label class="f" for="msel">상품 불러오기 <span class="mute b sm">(선택)</span></label><select id="msel" class="inp" data-c="mProd"><option value="">다른 사이트의 상품이에요 (직접 올릴게요)</option>${prods.map(p => `<option value="${p.id}" ${M.productId === p.id ? 'selected' : ''}>${esc(p.n)}</option>`).join('')}</select></div>` : ''}
-  ${M.productId && prod ? `<div class="card fill row" style="padding:10px 12px;gap:10px;margin-bottom:16px"><span class="ph" style="width:40px;height:48px;flex:none"><span>이미지</span>${pimg(prod.id)}</span><span class="grow sm"><b>${esc(prod.n)}</b><br><span class="mute">${won(prod.pr)} · 등록된 상품이에요. 사이즈표를 자동으로 불러왔어요</span></span></div>` : `
+    </div>
+  ${prods.length ? `<div class="field"><label class="f" for="msel">상품 불러오기 <span class="mute b sm">선택</span></label><select id="msel" class="inp" data-c="mProd"><option value="">다른 사이트의 상품이에요 (직접 올릴게요)</option>${prods.map(p => `<option value="${p.id}" ${M.productId === p.id ? 'selected' : ''}>${esc(p.n)}</option>`).join('')}</select></div>` : ''}
+  ${M.productId && prod ? `<div class="card fill row" style="padding:10px 12px;gap:10px;margin-bottom:16px"><span class="ph" style="width:40px;height:48px;flex:none"><span>이미지</span>${pimg(prod.id)}</span><span class="grow sm"><b>${esc(prod.n)}</b><br><span class="mute">${won(prod.pr)}</span></span></div>` : `
   <div class="field"><div class="row between" style="margin-bottom:5px"><label class="f" style="margin:0">사이즈표 <button class="info" data-a="photoInfo" aria-label="어떤 사진을 올리면 되나요?">i</button></label><span class="pill tight">필수</span></div>
     <label class="upload" for="mphoto" style="cursor:pointer">${M.photo ? `<img src="${M.photo}" alt="첨부한 사이즈표">` : `<span>${ico('plus', 'ico')}<br><b>사진 첨부</b><br><span class="xs mute">상품 상세 페이지의 사이즈표를 캡처해 주세요</span></span>`}</label>
     <input id="mphoto" type="file" accept="image/*" hidden data-c="mPhoto">${M.photo ? `<button class="link mt8" data-a="mPhotoDel">사진 지우기</button>` : ''}</div>
   <div class="field"><div class="row between" style="margin-bottom:5px"><label class="f" style="margin:0">상품 이미지 <button class="info" data-a="imgInfo" aria-label="상품 이미지는 어떻게 올리나요?">i</button></label><span class="pill gray">선택</span></div>
     <div class="phgrid">${(M.imgs || []).map(x => `<div class="phi"><img src="${x.src}" alt="상품 이미지"><button data-a="mImgDel" data-v="${x.id}" aria-label="삭제">×</button></div>`).join('')}${(M.imgs || []).length < 5 ? `<label class="phi add" for="mimgs"><span>${ico('plus', 'ico')}<br>이미지 첨부</span></label>` : ''}</div>
     <input id="mimgs" type="file" accept="image/*" multiple hidden data-c="mImgs"></div>
-  <div class="field"><label class="f" for="mlink">상품 페이지 링크 <span class="mute b sm">(선택)</span></label><input id="mlink" class="inp" inputmode="url" data-i="mM" data-k="link" value="${esc(M.link)}" placeholder="https://…  붙여넣기"><div class="hint">링크를 남기면 기록에서 상품 페이지로 돌아갈 수 있어요.</div></div>
-  <div class="acc field"><button data-a="mOpen" aria-expanded="${M.open}"><span>상세 실측 직접 입력 <span class="mute sm b">분석이 실패할 때</span></span><span>${M.open ? '−' : '+'}</span></button>
-    ${M.open ? `<div class="in"><div class="mdwrap">${measureSVG(M.cat)}</div><label class="f">입력할 사이즈</label><div class="chips mb8" style="margin-bottom:12px">${chipsHTML(SZ, M.size, 'mSize')}</div><div class="grid2">${partsByNum(M.cat).map(p => `<div><label class="f" for="r-${p}">${nbTag(M.cat, p)}${p}${['가슴', '허리', '힙', '허벅지'].includes(p) ? ' (둘레)' : ''}</label><div class="unit"><input id="r-${p}" class="inp num" inputmode="decimal" data-i="mRow" data-k="${p}" value="${esc(M.rows[p] ?? '')}" placeholder="cm"><i>cm</i></div></div>`).join('')}</div><p class="hint">번호는 위 그림의 부위와 같아요. 상세 페이지에 단면(폭)으로 적혀 있다면 × 2 해서 둘레로 입력해 주세요.</p></div>` : ''}</div>
-  <button class="link" data-a="mDemo">예시 값으로 채우기 (프로토타입)</button>`}</div>
-  <div class="dock"><button id="mgo" class="btn pri full" data-a="mGo" ${mReady() ? '' : 'disabled'}>사이즈 분석하기</button><p class="hint" style="text-align:center">${mReady() ? '' : '브랜드를 고르고, 사이즈표 사진을 올리거나 DB 상품을 선택해 주세요.'}</p></div>`;
+  <div class="field"><label class="f" for="mlink">상품 페이지 링크 <span class="mute b sm">선택</span></label><input id="mlink" class="inp" inputmode="url" data-i="mM" data-k="link" value="${esc(M.link)}" placeholder="https://…  붙여넣기"></div>
+  <div class="acc field"><button data-a="mOpen" aria-expanded="${M.open}"><span>상세 실측 직접 입력</span><span>${M.open ? '−' : '+'}</span></button>
+    ${M.open ? `<div class="in"><div class="mdwrap">${measureSVG(M.cat)}</div><label class="f">입력할 사이즈</label><div class="chips mb8" style="margin-bottom:12px">${chipsHTML(SZ, M.size, 'mSize')}</div><div class="grid2">${partsByNum(M.cat).map(p => `<div><label class="f" for="r-${p}">${nbTag(M.cat, p)}${p}${['가슴', '허리', '힙', '허벅지'].includes(p) ? ' (둘레)' : ''}</label><div class="unit"><input id="r-${p}" class="inp num" inputmode="decimal" data-i="mRow" data-k="${p}" value="${esc(M.rows[p] ?? '')}" placeholder="cm"><i>cm</i></div></div>`).join('')}</div></div>` : ''}</div>
+  `}</div>
+  <div class="dock"><button id="mgo" class="btn pri full" data-a="mGo" ${mReady() ? '' : 'disabled'}>사이즈 분석하기</button></div>`;
 };
 ACT.mStep = t => { const s = +t.dataset.v; if (s === 2 && M.step === 1 && !commitBody()) return; M.step = s; if (s === 1) loadBD(); reRender(); $('#view').scrollTop = 0; };
 ACT.mNext = () => { if (!commitBody()) return; M.step = 2; render(); $('#view').scrollTop = 0; };
 ACT.mBack = () => { if (M.step === 2) { M.step = 1; loadBD(); render(); $('#view').scrollTop = 0; } else back(); };
 ACT.sheetClose = () => closeSheet();
-const mUpdate = () => { const g = $('#mgo'); if (g) { g.disabled = !mReady(); const h = g.nextElementSibling; if (h) h.textContent = mReady() ? '' : '브랜드를 고르고, 사이즈표 사진을 올리거나 DB 상품을 선택해 주세요.'; } };
+const mUpdate = () => { const g = $('#mgo'); if (g) g.disabled = !mReady(); };
 ACT.mCat = t => { M.cat = t.dataset.v; M.productId = null; M.rows = {}; M.touched = false; reRender(); };
 ACT.mOpen = () => { M.open = !M.open; reRender(); };
 ACT.mSize = t => { M.size = t.dataset.v; if (M.productId && !M.touched) fillFromProduct(); reRender(); };
@@ -217,7 +252,7 @@ function runAnalysis() { CUR = buildAnalysis(M); RT = 'viz'; RE = false; go('ana
 /* ---------- 분석 중(처음 분석과 다시 분석에서 공용) ---------- */
 const AN_STEPS = ['사이즈표를 찾는 중', '부위별 실측을 읽는 중', '내 신체와 비교하는 중', '사이즈별 의견을 만드는 중'];
 V.analyzing = p => `<div class="anl"><div class="scan"><svg viewBox="0 0 300 440"><g fill="none" stroke="currentColor" stroke-width="6"><circle cx="150" cy="36" r="19"/><path d="M108 80 C106 108 120 128 124 158 C118 180 106 196 104 218 L196 218 C194 196 182 180 176 158 C180 128 194 108 192 80 Z M104 218 L121 424 M196 218 L179 424"/></g></svg></div>
-  <h2 style="margin:22px 0 4px;font-size:18px">${p.again ? '수정한 값으로 다시 분석 중이에요' : '분석 중이에요'}</h2><p class="sub">잠시만 기다려 주세요</p><div style="margin-top:18px;text-align:left">${AN_STEPS.map((s, i) => `<div class="chk" id="an${i}"><i></i>${s}</div>`).join('')}</div></div>`;
+  <h2 style="margin:22px 0 4px;font-size:18px">${p.again ? '다시 분석 중' : '분석 중'}</h2><div style="margin-top:18px;text-align:left">${AN_STEPS.map((s, i) => `<div class="chk" id="an${i}"><i></i>${s}</div>`).join('')}</div></div>`;
 let anTimers = [];
 V['analyzing$after'] = p => {
   anTimers.forEach(clearTimeout); anTimers = [];
@@ -227,7 +262,7 @@ V['analyzing$after'] = p => {
 
 /* ---------- 분석 결과 ---------- */
 let CUR = null, RT = 'viz', RE = false;
-const SRC = { manual: '직접 입력·수정한 실측', product: '우리 DB 사이즈표', sample: 'AI 샘플 분석 (프로토타입 고정값)' };
+const SRC = { manual: '직접 입력·수정한 실측', product: '우리 DB 사이즈표', sample: 'AI 사진 분석' };
 function summarize(ev, sel, rec) {
   const bad = ev.rows.filter(r => r.v !== 'ok' && r.v !== 'na');
   const head = sel === rec ? `${sel} 사이즈가 가장 잘 맞아요. ` : `${sel} 사이즈는 추천(${rec})과 달라요. `;
@@ -235,30 +270,35 @@ function summarize(ev, sel, rec) {
   return head + bad.map(r => `${r.part}은 ${VLABEL[r.v]}`).join(', ') + '이에요.';
 }
 const persText = A => { const e = Object.entries(A.pers?.shift || {}); return e.length ? e.map(([k, v]) => `${k} ${v > 0 ? '더 여유롭게' : '더 몸에 맞게'}`).join(' · ') : ''; };
+const partRowHTML = r => {
+  const bad = isBad(r), word = r.len ? (r.v === 'short' ? '짧아요' : r.v === 'long' ? '길어요' : '적당') : partWord(r);
+  return `<div class="prow"><span class="prow-k">${r.part}</span><span class="pbar"><i class="pband"></i><i class="pdot ${bad ? 'bad' : ''}" style="left:${barPos(r)}%"></i></span><span class="prow-v"><b class="${bad ? 'bad' : ''}">${bad ? word : '적당'}</b><span class="xs mute">${r.ease != null ? sgn(r.ease) : sgn(r.diff ?? 0)}cm</span></span></div>`;
+};
 V.result = p => {
   const A = p.rid ? S.records.find(r => r.id === p.rid) : CUR; if (!A) return '<div class="empty">분석 결과가 없어요</div>';
-  const { bv, ev, rec } = analysisView(A), fromRec = !!p.rid, sel = A.sel, sh = A.pers?.shift || {};
-  const gauge = r => { if (r.len || r.ease == null) return ''; const lo = r.target - r.tol, hiV = r.target + r.tol, min = Math.min(lo - 6, r.ease - 2), max = Math.max(hiV + 6, r.ease + 2), pc = x => (x - min) / (max - min) * 100; return `<div class="gauge"><div class="ok" style="left:${pc(lo)}%;width:${pc(hiV) - pc(lo)}%"></div><div class="dot" style="left:${pc(r.ease)}%;background:var(--${r.v === 'ok' ? 'ok' : r.v === 'tight' ? 'tight' : 'loose'})"></div></div>`; };
-  const per = SZ.filter(s => A.chart[s]).map(s => { const e = evalSize(A.cat, A.chart[s], bv, A.pref, sh), v = sizeVerdict(A.cat, e), bad = e.rows.filter(r => r.v !== 'ok' && r.v !== 'na'); return { s, v, txt: bad.length ? bad.map(r => `${r.part} ${VLABEL[r.v]}`).join(' · ') : '모든 부위 적당' }; });
-  return `${topbar(fromRec ? '기록 상세' : '분석 결과', { left: 'close' })}
-  <div class="rec"><div class="sm mute">${esc(A.brandName)}${A.productName ? ' · ' + esc(A.productName) : ''} · ${esc(A.cat)}</div><div class="sm mute mt8">가장 추천하는 사이즈</div><div class="sz">${rec.best}</div>
-    <p class="sm ink2" style="margin:2px 0 0">${rec.gap > 1.2 ? '다른 사이즈와 차이가 분명해요' : '인접 사이즈와 차이가 작아요 · 아래 의견을 보고 골라도 좋아요'}</p>
-    <div class="row mt8" style="justify-content:center;gap:6px;flex-wrap:wrap"><span class="pill gray">${SRC[A.source]}</span>${A.corrected ? '<span class="pill ok">수정 반영됨</span>' : ''}${A.sample ? '<span class="pill gray">예시 기록</span>' : ''}</div></div>
-  <div class="pad" style="padding-top:0">
-  ${fromRec ? `<button class="btn ${A.fb ? 'flat' : 'pri'} full" data-a="fbOpen" data-v="${A.id}" style="margin-bottom:14px">${A.fb ? '착용 피드백 수정' : '착용 피드백 남기기'}</button>` : ''}
-  <b>사이즈별 의견</b>
-  <div class="sizecards mt8" id="szc">${per.map(x => `<button class="szc ${x.s === sel ? 'on' : ''}" data-a="rSize" data-v="${x.s}" aria-pressed="${x.s === sel}"><b>${x.s}</b><i class="${x.v.c}">${x.v.t}</i>${x.s === rec.best ? '<u>추천</u>' : ''}</button>`).join('')}</div>
-  <div class="card fill pad mt8 sm" style="padding:12px 14px"><div class="row" style="gap:6px;flex-wrap:wrap"><b style="font-size:15px">${sel}</b>${(() => { const x = per.find(q => q.s === sel); return x ? `<span class="pill ${x.v.c}">${x.v.t}</span>` : ''; })()}${sel === rec.best ? '<span class="pill dark">추천</span>' : ''}${A.ex[sel] ? '<span class="pill gray">추정</span>' : ''}</div><div class="mt8" style="margin-top:6px">${summarize(ev, sel, rec.best)}</div></div>
-  <div class="mt16">${segHTML(['핏 시각화', '부위별 표'], RT === 'viz' ? '핏 시각화' : '부위별 표', 'rTab')}</div>
-  ${RT === 'viz' ? `<div class="card mt12" style="padding:12px 8px 10px"><div style="max-width:210px;margin:0 auto">${fitSVG(A.cat, ev.rows, bv.h)}</div>
-    <div class="legend mt8"><span><i style="background:var(--tight)"></i>타이트</span><span><i style="background:var(--ok)"></i>적당</span><span><i style="background:var(--loose)"></i>여유</span></div>
-    <p class="hint" style="text-align:center;padding:0 12px">숫자는 옷 실측 − 내 몸 치수(cm)예요. 정면 2D 실루엣 기반의 근사 시각화예요.</p></div>`
-    : `<div class="card mt12" style="padding:2px 14px">${ev.rows.map(r => `<div class="vs"><div><b>${r.part}</b>${r.est ? '<div class="xs mute">몸 추정</div>' : ''}</div><div><div class="row between"><span class="sm num ink2">${r.len ? `옷 ${r.garment}` : `몸 ${r.body} → 옷 ${r.garment}`}</span>${pillV(r.v)}</div>${r.len ? `<div class="xs mute">키 기준 ${r.body ?? '—'}cm 대비 ${r.diff != null ? sgn(r.diff) + 'cm' : '판정 안 함'}</div>` : `<div class="xs mute num mb8">여유 ${sgn(r.ease)}cm (적정 ${r1(r.target)}±${r.tol})</div>${gauge(r)}`}</div></div>`).join('')}</div>`}
-  <div class="card mt16"><button class="li" data-a="rEdit" style="border-radius:14px"><span class="grow"><b>AI가 읽은 값이 다른가요?</b><span class="sm mute" style="display:block">${sel} 사이즈 실측을 직접 고치고 다시 분석해요</span></span><span class="mute">${RE ? '−' : '+'}</span></button>
-    ${RE ? `<div style="padding:0 14px 14px"><div class="grid2">${PARTS[A.cat].filter(k => A.chart[sel][k] != null).map(k => `<div><label class="f" for="re-${k}">${k}</label><div class="unit"><input id="re-${k}" class="inp num" inputmode="decimal" data-i="re" data-k="${k}" value="${esc(A.chart[sel][k] ?? '')}"><i>cm</i></div></div>`).join('')}</div><button class="btn pri full mt12" data-a="rRe">수정한 값으로 다시 분석</button></div>` : ''}</div>
-  ${fromRec ? recordFeedbackHTML(A) : ''}
-  </div><div style="height:${fromRec ? 20 : 96}px"></div>
-  ${fromRec ? '' : `<div class="dock" style="position:sticky;bottom:0"><div class="row"><button class="btn flat" data-a="rAgain" style="width:112px">다시 측정</button><button class="btn pri grow" data-a="rSave">저장하기</button></div></div>`}`;
+  const fromRec = !!p.rid, o = analysisOutcome(A); if (!o) return '<div class="empty">분석 결과가 없어요</div>';
+  const tx = outcomeText(o), sel = A.sel && o.evs[A.sel] ? A.sel : o.best, ev = o.evs[sel], pr = A.productId ? prodById[A.productId] : null, site = brandById[A.brandId]?.site || '';
+  const neigh = o.state === 'nofit' ? [] : [SZ[SZ.indexOf(o.best) - 1], SZ[SZ.indexOf(o.best) + 1]].filter(s => s && A.chart[s]).map(s => neighborText(o, A.cat, s)).filter(Boolean);
+  const sims = pr ? similarReviews(pr.id, A.body) : [];
+  const alts = o.state === 'nofit' ? PR.filter(x => x.c === A.cat && x.id !== A.productId && (!pr || x.sc === pr.sc) && genderOk(x)).map(x => ({ x, oc: productOutcome(x, A.body) })).filter(y => y.oc && y.oc.state === 'fit').sort((a, c) => (revByProd[c.x.id]?.length || 0) - (revByProd[a.x.id]?.length || 0)).slice(0, 3) : [];
+  const buy = o.state === 'nofit'
+    ? `<button class="btn pri grow" data-a="mNew">다른 옷 측정하기 →</button>`
+    : (site ? `<a class="btn pri grow" href="${esc(site)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">${o.best}로 구매하기 →</a>` : `<button class="btn pri grow" data-a="mNew">다른 옷 측정하기 →</button>`);
+  return `${topbar(fromRec ? '기록' : '결과', { left: 'close' })}
+  <div class="rs">
+  <div class="rs-prod"><span class="ph"><span>이미지</span>${pr ? pimg(pr.id) : ''}</span><span><span class="xs mute" style="display:block">${esc(A.brandName)}</span><span class="sm">${esc(A.productName || A.cat)}</span></span></div>
+  <h1 class="rs-h">${tx.head}</h1>${tx.sub ? `<div class="rs-s">${esc(tx.sub)}</div>` : ''}
+  <div class="rs-m">${o.bv.h} · ${o.bv.w} · ${esc(A.pref)}${A.corrected ? ' · 실측 수정' : ''}</div>
+  <div class="szrow" id="szc" style="grid-template-columns:repeat(${o.per.length},minmax(0,1fr))">${o.per.map(x => `<button class="szbox ${x.s === sel ? 'on' : ''} ${x.s === o.best ? 'best' : ''}" data-a="rSize" data-v="${x.s}" aria-pressed="${x.s === sel}"><b>${x.s}</b><i>${sizeLabel(o, x)}</i></button>`).join('')}</div>
+  <h2 class="rs-t">${sel} 부위별</h2><div class="plist">${ev.rows.map(partRowHTML).join('')}</div>
+  ${neigh.length ? `<h2 class="rs-t">다른 사이즈</h2>${neigh.map(n => `<div class="nrow2"><b>${n.s}</b><span>${n.head}${n.sub ? `<span class="xs mute" style="display:block">${n.sub}</span>` : ''}</span></div>`).join('')}` : ''}
+  ${alts.length ? `<h2 class="rs-t">내 사이즈에 맞는 비슷한 옷</h2>${alts.map(({ x, oc }) => `<button class="altrow" data-a="openProduct" data-v="${x.id}"><span class="ph"><span>이미지</span>${pimg(x.id)}</span><span class="grow"><span class="xs mute" style="display:block">${esc(brandById[x.b].n)}</span><span class="sm">${esc(x.n)}</span></span><b>${oc.best}</b></button>`).join('')}` : ''}
+  ${sims.length ? `<h2 class="rs-t">비슷한 체형 후기</h2>${sims.map(({ r, u }) => `<button class="simrv" data-a="openReview" data-v="${r.id}"><span class="xs mute">${u[0]} · ${u[1]} · <b style="color:var(--ink)">${esc(r.sz)}</b> · ${esc(r.op)}</span><span class="sm" style="display:block;margin-top:3px">${esc(r.t)}</span></button>`).join('')}` : ''}
+  <div class="acc field" style="margin-top:24px"><button data-a="rEdit" aria-expanded="${RE}"><span>실측 수정</span><span>${RE ? '−' : '+'}</span></button>
+    ${RE ? `<div class="in"><div class="grid2">${PARTS[A.cat].filter(k => A.chart[sel][k] != null).map(k => `<div><label class="f" for="re-${k}">${k}</label><div class="unit"><input id="re-${k}" class="inp num" inputmode="decimal" data-i="re" data-k="${k}" value="${esc(A.chart[sel][k] ?? '')}"><i>cm</i></div></div>`).join('')}</div><button class="btn pri full mt12" data-a="rRe">다시 분석</button></div>` : ''}</div>
+  ${fromRec ? `<button class="btn ${A.fb ? 'flat' : 'pri'} full" data-a="fbOpen" data-v="${A.id}" style="margin:16px 0 14px">${A.fb ? '착용 피드백 수정' : '착용 피드백 남기기'}</button>${recordFeedbackHTML(A)}` : ''}
+  </div><div style="height:96px"></div>
+  <div class="dock" style="position:sticky;bottom:0"><div class="row">${fromRec ? '' : '<button class="btn flat" data-a="rSave" style="width:92px">저장</button>'}${buy}</div></div>`;
 };
 const getA = () => { const p = stack.at(-1).p; return p.rid ? S.records.find(r => r.id === p.rid) : CUR; };
 ACT.rSize = t => { getA().sel = t.dataset.v; RE = false; const sc = $('#szc'), x = sc ? sc.scrollLeft : 0; reRender(); const n = $('#szc'); if (n) n.scrollLeft = x; };

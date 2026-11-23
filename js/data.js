@@ -3,9 +3,13 @@
    data/products.json 상품 (product_id, brand_id, name, category, sub_category, gender, fit_type, sleeve_type, stretch, price, colors, sizes, size_chart, release_date, meta)
    data/reviews.json  후기 (review_id, product_id, reviewer_id, reviewer_nick, reviewer_handle, height_cm, weight_kg, purchased_size, size_opinion, … meta)
    필드 설명과 허용값은 README.md 의 '데이터 명세' 참고 */
-const DATA_VER = '20261116142902'; // 빌드 시각: 예전 JSON·JS가 브라우저에 남아 새 파일과 섞이는 것을 막아요
+const DATA_VER = '20261122180000'; // 빌드 시각: 예전 JSON·JS가 브라우저에 남아 새 파일과 섞이는 것을 막아요
 const DATA_FILES = { brands: 'data/brands.json', products: 'data/products.json', reviews: 'data/reviews.json' };
 async function fetchRaw() {
+  if (location.protocol === 'file:') {   // 파일을 더블클릭해 연 경우: 브라우저가 fetch로 로컬 JSON을 막으므로 data/bundle.js(같은 내용의 사본)를 읽어요
+    if (!window.FS_RAW) await new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'data/bundle.js?v=' + DATA_VER; sc.onload = ok; sc.onerror = () => no(new Error('data/bundle.js 없음 — python3 tools/build_bundle.py 실행')); document.head.appendChild(sc); });
+    return window.FS_RAW;
+  }
   const out = {};
   for (const [k, u] of Object.entries(DATA_FILES)) { const r = await fetch(u + '?v=' + DATA_VER, { cache: 'no-cache' }); if (!r.ok) throw new Error(u + ' ' + r.status); out[k] = await r.json(); }
   return out;

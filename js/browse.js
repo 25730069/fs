@@ -9,7 +9,7 @@ ACT.back = () => back();
 ACT.openBrand = t => { DF = { id: t.dataset.v, cat: '전체', q: '', sort: null, tab: 'prod' }; go('brandDetail', { id: t.dataset.v }); };
 ACT.openProduct = t => { openProduct(t.dataset.v); };
 const newLF = (sort = 'helpful') => ({ sort, sizes: [], h: [], w: [], op: null, similar: false, kw: [] });
-function openProduct(id, tabName = 'info') {
+function openProduct(id, tabName = 'chart') {
   S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 12); save();
   LF = newLF(); go('product', { id, tab: tabName });
 }
@@ -17,13 +17,13 @@ function openProduct(id, tabName = 'info') {
 /* ---------- 상품 카드 · 정렬 · 보기 전환(3열 · 2열 · 리스트) ---------- */
 const clamp2 = 'white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden';
 const NOPHOTO = p => `<div class="ph"><span>이미지</span>${pimg(p.id)}</div>`;
-function pcardHTML(p, v = S.pview) {
-  const rs = revByProd[p.id] || [], rec = quickRec(p), ss = simStat(p.id), heart = heartBtn('product', p.id, 'hb');
-  if (v === 'list') return `<div class="prow"><button class="prow-b" data-a="openProduct" data-v="${p.id}">${NOPHOTO(p)}<span class="grow" style="min-width:0"><span class="xs mute" style="display:block">${esc(brandById[p.b].n)}</span><b class="sm" style="display:block;line-height:1.35">${esc(p.n)}</b><b class="num" style="display:block;margin-top:2px">${p.pr ? won(p.pr) : NO_INFO}</b><span class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${rec ? `<span class="pill dark">내 추천 ${rec}</span>` : ''}${ss ? `<span class="pill ok">비슷한 체형 정사이즈 ${ss.pct}%</span>` : ''}<span class="xs mute">후기 ${rs.length}</span></span></span></button>${heart}</div>`;
-  return `<div class="pcard v${v}"><button class="pcard-b" data-a="openProduct" data-v="${p.id}"><span class="pimg">${NOPHOTO(p)}${rec ? `<span class="rb pill dark">내 추천 ${rec}</span>` : ''}</span><span class="bn">${esc(brandById[p.b].n)}</span><span class="nm">${esc(p.n)}</span><span class="pr num">${p.pr ? won(p.pr) : NO_INFO}</span><span class="mt">${ratingLine(p.id)}${ss ? `<span class="okc"> · 정사이즈 ${ss.pct}%</span>` : ''}</span></button>${heart}</div>`;
+function pcardHTML(p, v = '3') {
+  const rs = revByProd[p.id] || [], o = S.body ? productOutcome(p, S.body) : null, rec = o ? (o.state === 'nofit' ? '맞는 사이즈 없음' : o.best) : '', heart = heartBtn('product', p.id, 'hb');
+  if (v === 'list') return `<div class="prow"><button class="prow-b" data-a="openProduct" data-v="${p.id}">${NOPHOTO(p)}<span class="grow" style="min-width:0"><span class="xs mute" style="display:block">${esc(brandById[p.b].n)}</span><b class="sm" style="display:block;line-height:1.35">${esc(p.n)}</b><b class="num" style="display:block;margin-top:2px">${p.pr ? won(p.pr) : NO_INFO}</b><span class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${rec ? `<span class="pill ${o.state === 'nofit' ? 'gray' : 'dark'}">${rec}</span>` : ''}<span class="xs mute">후기 ${rs.length}</span></span></span></button>${heart}</div>`;
+  return `<div class="pcard v${v}"><button class="pcard-b" data-a="openProduct" data-v="${p.id}"><span class="pimg">${NOPHOTO(p)}${rec ? `<span class="rb pill ${o.state === 'nofit' ? 'gray' : 'dark'}">${rec}</span>` : ''}</span><span class="bn">${esc(brandById[p.b].n)}</span><span class="nm">${esc(p.n)}</span><span class="pr num">${p.pr ? won(p.pr) : NO_INFO}</span><span class="mt">${ratingLine(p.id)}</span></button>${heart}</div>`;
 }
-const pgridHTML = (ps, rst = '') => ps.length ? `<div class="${S.pview === 'list' ? 'plist-rows' : 'pgrid v' + S.pview}">${ps.map(p => pcardHTML(p)).join('')}</div>` : emptyHTML('', (rst ? emptyBtn(rst, '필터 초기화') + ' ' : '') + emptyBtn('askOpen', '상품 추가 요청하기', 'data-v="상품"'));
-const viewTg = () => `<span class="viewtg" role="group" aria-label="보기 방식">${[['3', '▦', '3열'], ['2', '▥', '2열'], ['list', '☰', '리스트']].map(([k, g, l]) => `<button class="${S.pview === k ? 'on' : ''}" data-a="pView" data-v="${k}" aria-label="${l}">${g}</button>`).join('')}</span>`;
+const pgridHTML = (ps, rst = '') => ps.length ? `<div class="pgrid v3">${ps.map(p => pcardHTML(p)).join('')}</div>` : emptyHTML('', (rst ? emptyBtn(rst, '필터 초기화') + ' ' : '') + emptyBtn('askOpen', '상품 추가 요청하기', 'data-v="상품"'));
+const viewTg = () => '';   // 배열 전환(3열·2열·리스트) 버튼은 두지 않아요: 3열 고정
 ACT.pView = t => { S.pview = t.dataset.v; save(); const y = $('#view').scrollTop; reRender(); $('#view').scrollTop = y; };
 const sortSelect = (cur, c) => `<select class="inp sortsel" data-c="${c}" aria-label="정렬">${SORTS.map(s => `<option ${cur === s ? 'selected' : ''}>${s}</option>`).join('')}</select>`;
 const sortHint = s => (!S.body && ['내 핏 맞는 순', '비슷한 체형 만족도순'].includes(s)) ? `<div class="hint" style="padding:0 16px">신체 사이즈를 입력하면 이 정렬을 쓸 수 있어요.</div>` : '';
@@ -61,9 +61,9 @@ function brandListHTML() {
   const idx = `<div class="initrow" role="group" aria-label="초성"><button class="${!BF.letter && !BF.liked ? 'on' : ''}" data-a="bcLetter" data-v="">전체</button><button class="${BF.liked ? 'on' : ''}" data-a="bcLiked" aria-label="찜한 브랜드">♡</button>${INIT.map(l => `<button class="${BF.letter === l ? 'on' : ''}" data-a="bcLetter" data-v="${l}" ${have.has(l) ? '' : 'disabled'}>${l}</button>`).join('')}</div>`;
   let last = '', rows = '';
   items.forEach(x => {
-    const ini = initOf(x.n), st = brandStat(x.id), sim = similarBrandPct(x.id, S.body), tn = brandTend(x.id);
+    const ini = initOf(x.n), st = brandStat(x.id);
     if (BF.sort === 'abc' && ini !== last) { rows += `<div class="ihead">${ini}</div>`; last = ini; }
-    rows += `<div class="brand-row" style="padding:12px 8px 12px 16px;border-bottom:1px solid var(--line)"><button class="row grow" style="background:none;border:0;text-align:left;padding:0;gap:12px;min-width:0" data-a="openBrand" data-v="${x.id}"><span class="logo im">이미지</span><span class="grow" style="min-width:0"><b>${esc(x.n)}</b>${BF.g !== '전체' ? ` <span class="xs mute">${BF.g} 상품 ${gCnt(x.id)}개</span>` : ''} <span class="xs mute">${esc(x.en)}</span><span class="row" style="gap:6px;margin-top:4px;flex-wrap:wrap">${st.rv ? `<span class="pill ok">${sim ? '체형 일치' : '정사이즈'} ${sim ? sim.pct : st.pct}%</span>` : `<span class="pill gray">${NO_INFO}</span>`}<span class="pill ${tn.cls}">${tn.label}</span></span></span></button>${heartBtn('brand', String(x.id), 'ib heart')}</div>`;
+    rows += `<div class="brand-row" style="padding:12px 8px 12px 16px;border-bottom:1px solid var(--line)"><button class="row grow" style="background:none;border:0;text-align:left;padding:0;gap:12px;min-width:0" data-a="openBrand" data-v="${x.id}"><span class="logo im">이미지</span><span class="grow" style="min-width:0"><b>${esc(x.n)}</b>${BF.g !== '전체' ? ` <span class="xs mute">${BF.g} 상품 ${gCnt(x.id)}개</span>` : ''} <span class="xs mute">${esc(x.en)}</span><span class="xs mute" style="display:block;margin-top:2px">상품 ${st.n} · 후기 ${st.rv}</span></span></button>${heartBtn('brand', String(x.id), 'ib heart')}</div>`;
   });
   return `${idx}<div class="row between" style="padding:10px 16px 4px"><span class="sm mute">브랜드 ${items.length}개</span><button class="sorttg" data-a="bSort" aria-label="정렬 바꾸기">${BF.sort === 'pop' ? '인기순' : '가나다순'} ⇅</button></div>${rows || emptyHTML('', emptyBtn('bfReset', '필터 초기화') + ' ' + emptyBtn('askOpen', '추가 요청하기', 'data-v="브랜드"'))}`;
 }
@@ -87,13 +87,14 @@ ACT.bSort = () => { BF.sort = BF.sort === 'pop' ? 'abc' : 'pop'; reRender(); };
 ACT.bfReset = () => { BF = { ...BF, letter: null, liked: false, q: '', g: '전체' }; reRender(); };
 
 /* ---------- 상품 목록(카테고리·핏·소매·신축성·컬러·브랜드 필터) ---------- */
-const newPL = (o = {}) => ({ c: null, sc: null, g: null, fit: [], sl: [], st: [], col: [], b: [], q: '', sort: null, ...o });
+const newPL = (o = {}) => ({ c: null, sc: null, g: null, fit: [], sl: [], st: [], col: [], b: [], pr: [], fo: false, q: '', sort: null, ...o });
 let PL = newPL(), PLt = null;
 ACT.plGo = t => { PL = newPL(JSON.parse(t.dataset.pl || '{}')); go('plist'); };
+const PRICES = [['5만원 미만', 0, 50000], ['5~10만원', 50000, 100000], ['10~20만원', 100000, 200000], ['20만원 이상', 200000, 1e9]];
 function plFilter(f = PL) {
-  return sortProducts(PR.filter(p => (!f.c || p.c === f.c) && (!f.sc || p.sc === f.sc) && (!f.g || !p.g || p.g === '공용' || p.g === f.g) && (!f.fit.length || f.fit.includes(p.fit)) && (!f.sl.length || f.sl.includes(p.sl)) && (!f.st.length || f.st.includes(p.st)) && (!f.col.length || (p.col || []).some(c => f.col.includes(c))) && (!f.b.length || f.b.includes(p.b)) && (!f.q.trim() || findIn(p.n, f.q) || findIn(p.sc || '', f.q) || findIn(brandById[p.b].n, f.q))), f.sort);
+  return sortProducts(PR.filter(p => (!f.c || p.c === f.c) && (!f.sc || p.sc === f.sc) && (!f.g || !p.g || p.g === '공용' || p.g === f.g) && (!f.fit.length || f.fit.includes(p.fit)) && (!f.sl.length || f.sl.includes(p.sl)) && (!f.st.length || f.st.includes(p.st)) && (!f.col.length || (p.col || []).some(c => f.col.includes(c))) && (!f.b.length || f.b.includes(p.b)) && (!f.pr.length || f.pr.some(k => { const r = PRICES.find(x => x[0] === k); return r && p.pr >= r[1] && p.pr < r[2]; })) && (!f.fo || !S.body || (() => { const o = productOutcome(p, S.body); return o && o.state === 'fit'; })()) && (!f.q.trim() || findIn(p.n, f.q) || findIn(p.sc || '', f.q) || findIn(brandById[p.b].n, f.q))), f.sort);
 }
-const plActive = () => [...(PL.g ? [['g', PL.g, PL.g]] : []), ...(PL.c ? [['c', PL.c, PL.c]] : []), ...(PL.sc ? [['sc', PL.sc, PL.sc]] : []), ...PL.fit.map(v => ['fit', v, FIT_LBL[v]]), ...PL.sl.map(v => ['sl', v, v]), ...PL.st.map(v => ['st', v, '신축성 ' + v]), ...PL.col.map(v => ['col', v, v]), ...PL.b.map(v => ['b', v, brandById[v].n])];
+const plActive = () => [...(PL.g ? [['g', PL.g, PL.g]] : []), ...(PL.c ? [['c', PL.c, PL.c]] : []), ...(PL.sc ? [['sc', PL.sc, PL.sc]] : []), ...PL.fit.map(v => ['fit', v, FIT_LBL[v]]), ...PL.sl.map(v => ['sl', v, v]), ...PL.st.map(v => ['st', v, '신축성 ' + v]), ...PL.col.map(v => ['col', v, v]), ...PL.b.map(v => ['b', v, brandById[v].n]), ...PL.pr.map(v => ['pr', v, v]), ...(PL.fo ? [['fo', '1', '내 사이즈 맞는 옷']] : [])];
 V.plist = () => {
   const ps = plFilter(), af = plActive();
   return `${topbar(PL.sc || PL.c || '전체 상품')}
@@ -104,13 +105,13 @@ V.plist = () => {
 };
 INP.plq = t => { PL.q = t.value; const ps = plFilter(); $('#plgrid').innerHTML = pgridHTML(ps, 'plClear'); $('#plcnt').textContent = ps.length + '개'; };
 CHG.plSort = t => { PL.sort = t.value; reRender(); };
-ACT.plRm = t => { const k = t.dataset.k, v = t.dataset.v; if (k === 'g') PL.g = null; else if (k === 'c') { PL.c = null; PL.sc = null; } else if (k === 'sc') PL.sc = null; else if (k === 'b') PL.b = PL.b.filter(x => String(x) !== v); else PL[k] = PL[k].filter(x => x !== v); reRender(); };
+ACT.plRm = t => { const k = t.dataset.k, v = t.dataset.v; if (k === 'g') PL.g = null; else if (k === 'c') { PL.c = null; PL.sc = null; } else if (k === 'sc') PL.sc = null; else if (k === 'b') PL.b = PL.b.filter(x => String(x) !== v); else if (k === 'fo') PL.fo = false; else PL[k] = PL[k].filter(x => x !== v); reRender(); };
 ACT.plOpen = () => { PLt = JSON.parse(JSON.stringify(PL)); plSheet(); };
 function plSheet() {
   const n = plFilter(PLt).length, ch = (arr, cur, k, lab = x => x) => arr.map(x => `<button class="chip ${(Array.isArray(cur) ? cur.map(String).includes(String(x)) : cur === x) ? 'on' : ''}" data-a="plT" data-k="${k}" data-v="${esc(x)}">${esc(lab(x))}</button>`).join('');
   const grp = (title, body) => `<div class="field"><label class="f">${title}</label><div class="chips">${body}</div></div>`;
-  const cols = Object.keys(COLOR_HEX).map(c => `<button class="chip cchip ${PLt.col.includes(c) ? 'on' : ''}" data-a="plT" data-k="col" data-v="${c}">${cdot(c)}${c}</button>`).join('');
-  sheet(`<h3>상품 필터</h3><div class="mt16">${grp('카테고리', ch(BCATS, PLt.c, 'c'))}${PLt.c ? grp('세부 카테고리', ch(SUBS[PLt.c].map(x => x[0]), PLt.sc, 'sc')) : ''}${grp('핏', ch(['슬림', '레귤러', '오버'], PLt.fit, 'fit', x => FIT_LBL[x]))}${grp('소매', ch(['민소매', '반소매', '긴소매'], PLt.sl, 'sl'))}${grp('신축성', ch(['없음', '약간', '좋음'], PLt.st, 'st'))}${grp('컬러', cols)}${grp('브랜드', ch(BR.map(b => b.id), PLt.b, 'b', id => brandById[id].n))}</div>
+  const cols = COLOR_ORD.map(c => `<button class="swb ${PLt.col.includes(c) ? 'on' : ''}" data-a="plT" data-k="col" data-v="${c}" aria-label="${c}" aria-pressed="${PLt.col.includes(c)}"><i class="swc ${['화이트', '아이보리'].includes(c) ? 'lt' : ''}" style="background:${COLOR_HEX[c]}">${PLt.col.includes(c) ? '✓' : ''}</i>${c}</button>`).join('');
+  sheet(`<h3>상품 필터</h3><div class="mt16">${grp('카테고리', ch(BCATS, PLt.c, 'c'))}${PLt.c ? grp('세부 카테고리', ch(SUBS[PLt.c].map(x => x[0]), PLt.sc, 'sc')) : ''}${grp('핏', ch(['슬림', '레귤러', '오버'], PLt.fit, 'fit', x => FIT_LBL[x]))}${grp('소매', ch(['민소매', '반소매', '긴소매'], PLt.sl, 'sl'))}${grp('신축성', ch(['없음', '약간', '좋음'], PLt.st, 'st'))}${grp('컬러', cols)}${grp('가격', ch(PRICES.map(x => x[0]), PLt.pr, 'pr'))}${S.body ? `<div class="row between card fill" style="padding:12px 14px;margin-bottom:12px"><div><b class="sm">내 사이즈에 맞는 옷만</b><div class="xs mute">${S.body.h}cm · ${S.body.w}kg 기준 맞아요 판정</div></div>${swHTML(PLt.fo, 'plFo')}</div>` : ''}</div>
   <div class="row mt16"><button class="btn flat" data-a="plReset" style="width:96px">초기화</button><button class="btn pri grow" data-a="plApply">${n}개 보기</button></div>`);
 }
 ACT.plT = t => {
@@ -120,6 +121,7 @@ ACT.plT = t => {
   else PLt[k] = PLt[k].includes(v) ? PLt[k].filter(x => x !== v) : [...PLt[k], v];
   const sc = $('#scrim .sheet'), y = sc ? sc.scrollTop : 0; plSheet(); const s2 = $('#scrim .sheet'); if (s2) s2.scrollTop = y;
 };
+ACT.plFo = () => { PLt.fo = !PLt.fo; const sc = $('#scrim .sheet'), y = sc ? sc.scrollTop : 0; plSheet(); const s2 = $('#scrim .sheet'); if (s2) s2.scrollTop = y; };
 ACT.plReset = () => { PLt = newPL({ q: PL.q, sort: PL.sort }); plSheet(); };
 ACT.plClear = () => { PL = newPL({ sort: PL.sort }); reRender(); };
 ACT.plApply = () => { PL = PLt; closeSheet(); reRender(); };
@@ -132,7 +134,7 @@ V.brandDetail = p => {
   const b = brandById[p.id], st = brandStat(b.id), tn = brandTend(b.id), host = (b.site || '').replace(/^https?:\/\/(www\d?\.)?/, '').replace(/\/.*$/, ''), liked = S.likes.brand.includes(String(b.id));
   const hc = 120 + hash('bl' + b.id) % 880 + (liked ? 1 : 0);
   const head = `${topbar('', { right: heartBtn('brand', String(b.id), 'ib heart') })}
-  <div class="hd1"><div class="en">${esc(b.en)}</div><h1>${esc(b.n)}</h1><div class="row" style="gap:6px;flex-wrap:wrap">${st.rv ? `<span class="pill ${tn.cls}">${tn.label}</span><span class="pill gray">정사이즈 ${st.pct}%</span>` : `<span class="pill gray">${NO_INFO}</span>`}<span class="pill gray">상품 ${st.n}</span><span class="pill gray">후기 ${st.rv}</span></div></div>
+  <div class="hd1"><div class="en">${esc(b.en)}</div><h1>${esc(b.n)}</h1><div class="row" style="gap:6px;flex-wrap:wrap"><span class="pill gray">상품 ${st.n}</span><span class="pill gray">후기 ${st.rv}</span></div></div>
   <div class="btn3"><button class="btn flat" data-a="like" data-k="brand" data-v="${b.id}"><span class="heart ${liked ? 'on' : ''}">${ico('heart')}</span> ${kfmt(hc)}</button>${b.site ? `<a class="btn flat" href="${esc(b.site)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">공식 사이트 ↗</a>` : `<button class="btn flat" disabled>${NO_INFO}</button>`}<button class="btn flat" data-a="dfTab" data-v="tend">사이즈 경향</button></div>
   <div class="tabs t0">${[['prod', '상품'], ['tend', '사이즈 경향'], ['rev', '후기']].map(([k, l]) => `<button class="${DF.tab === k ? 'on' : ''}" data-a="dfTab" data-v="${k}">${l}</button>`).join('')}</div>`;
   let body = '';
@@ -230,32 +232,36 @@ V.product = p => {
   const pr = prodById[p.id], b = brandById[pr.b], rs = revByProd[pr.id] || [], rec = quickRec(pr), tabName = p.tab;
   let body = '';
   const lk = (label, o, pre = '') => `<button class="chip lk" ${plAttr(o)}>${pre}${esc(label)}</button>`;
-  if (tabName === 'info') {
+  let infoHTML = '';
+  {
     const rows = [
       ['브랜드', `<button class="chip lk" data-a="openBrand" data-v="${b.id}">${esc(b.n)}</button>`],
       ['카테고리', lk(pr.c, { c: pr.c }) + (pr.sc ? lk(pr.sc, { c: pr.c, sc: pr.sc }) : '')],
-      ['핏', pr.fit ? lk(FIT_LBL[pr.fit], { c: pr.c, fit: [pr.fit] }) : '<span class="sm mute">${NO_INFO}</span>'],
-      ['소매', pr.sl ? lk(pr.sl, { c: pr.c, sl: [pr.sl] }) : '<span class="sm mute">${NO_INFO}</span>'],
-      ['신축성', pr.st ? lk('신축성 ' + pr.st, { c: pr.c, st: [pr.st] }) : '<span class="sm mute">${NO_INFO}</span>'],
-      ['컬러', (pr.col || []).map(c => lk(c, { c: pr.c, col: [c] }, cdot(c))).join('') || '<span class="sm mute">${NO_INFO}</span>']
+      ['핏', pr.fit ? lk(FIT_LBL[pr.fit], { c: pr.c, fit: [pr.fit] }) : `<span class="sm mute">${NO_INFO}</span>`],
+      ['소매', pr.sl ? lk(pr.sl, { c: pr.c, sl: [pr.sl] }) : `<span class="sm mute">${NO_INFO}</span>`],
+      ['신축성', pr.st ? lk('신축성 ' + pr.st, { c: pr.c, st: [pr.st] }) : `<span class="sm mute">${NO_INFO}</span>`],
+      ['컬러', (pr.col || []).map(c => lk(c, { c: pr.c, col: [c] }, cdot(c))).join('') || `<span class="sm mute">${NO_INFO}</span>`]
     ];
     const kt = kwTop(rs, 8);
-    body = `<div class="pad"><div class="list card">${rows.map(([k, v]) => `<div class="li" style="padding:11px 14px;align-items:flex-start"><span class="mute sm" style="width:60px;padding-top:6px">${k}</span><span class="chips grow">${v}</span></div>`).join('')}${pr.len ? `<div class="li" style="padding:11px 14px"><span class="mute sm" style="width:60px">설계 총장</span><span class="sm">${pr.len}cm (M, 키 160 기준)</span></div>` : ''}</div>
-    <p class="hint">칩을 누르면 같은 ${esc(pr.c)} 중에서 그 속성을 가진 상품만 모아 볼 수 있어요.</p>
+    infoHTML = `<div class="pad"><div class="list card">${rows.map(([k, v]) => `<div class="li" style="padding:11px 14px;align-items:flex-start"><span class="mute sm" style="width:60px;padding-top:6px">${k}</span><span class="chips grow">${v}</span></div>`).join('')}${pr.len ? `<div class="li" style="padding:11px 14px"><span class="mute sm" style="width:60px">설계 총장</span><span class="sm">${pr.len}cm (M, 키 160 기준)</span></div>` : ''}</div>
     ${kt.length ? `<div class="mt16"><b>후기에서 자주 나온 키워드</b><div class="chips mt8">${kt.map(([k, c]) => `<button class="chip kwc" data-a="kwGo" data-v="${esc(k)}">#${esc(k)} <span class="mute">${c}</span></button>`).join('')}</div></div>` : ''}
-    ${rec ? `<div class="card fill pad mt16" style="padding:14px"><div class="sm mute">내 체형(${S.body.h}cm·${S.body.w}kg) 기준</div><div class="row between mt8" style="margin-top:4px"><b style="font-size:20px">추천 ${rec}</b><button class="btn s pri" data-a="measureWith" data-v="${pr.id}">정밀 측정</button></div></div>` : `<div class="card fill pad mt16 sm" style="padding:14px">${pr.ch ? '신체 사이즈를 입력하면 추천 사이즈를 보여드려요.' : '이 상품은 사이즈표가 없어 추천을 계산할 수 없어요.'}</div>`}</div>`;
-  } else if (tabName === 'chart') {
+    </div>`;
+  }
+  const po = S.body ? productOutcome(pr, S.body) : null, ot = po ? outcomeText(po) : null;
+  const verdict = po ? `<div class="pad" style="padding-bottom:0"><div class="card fill" style="padding:16px"><div class="xs mute">${S.body.h}cm · ${S.body.w}kg 기준</div><b style="display:block;font-size:${po.state === 'nofit' ? 20 : 22}px;margin-top:4px;font-weight:${po.state === 'fit' ? 800 : po.state === 'caution' ? 600 : 400}">${esc(ot.head)}</b>${ot.sub ? `<div class="sm mute" style="margin-top:2px">${esc(ot.sub)}</div>` : ''}<button class="btn s pri mt12" data-a="measureWith" data-v="${pr.id}">정밀 측정</button></div></div>` : `<div class="pad" style="padding-bottom:0"><div class="card fill row between" style="padding:14px 16px"><span class="sm">키·몸무게를 입력하면 내 사이즈를 알려드려요</span><button class="btn s pri" data-a="measureWith" data-v="${pr.id}">입력</button></div></div>`;
+  if (tabName === 'chart') {
     if (!pr.ch) body = `<div class="empty"><b class="en">${NO_INFO}</b><span class="sm">사이즈표 데이터가 없는 상품이에요</span></div>`;
     else { const parts = PARTS[pr.c].filter(k => Object.values(pr.ch).some(v => v[k] != null)), bv = bodyVals(S.body);
       body = `<div class="pad"><div class="mdwrap">${measureSVG(pr.c)}<p class="xs mute" style="text-align:center;margin:2px 0 10px">표의 번호는 그림의 부위와 같아요</p></div><div class="tbl-wrap"><table class="t"><thead><tr><th>(cm)</th><th>마이핏</th>${pr.sz.map(s => `<th class="${s === rec ? 'hl' : ''}">${s}${s === rec ? ' ★' : ''}</th>`).join('')}</tr></thead><tbody>${partsByNum(pr.c).filter(k => parts.includes(k)).map(k => `<tr><td>${nbTag(pr.c, k)}${k}</td><td class="mute">${k === '총장' ? '–' : bv[k]}${bv.est[k] && k !== '총장' ? '*' : ''}</td>${pr.sz.map(s => `<td class="${s === rec ? 'hl' : ''}">${pr.ch[s][k] ?? '–'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-      <p class="hint">가슴·허리·힙·허벅지는 둘레, 어깨·소매·총장은 길이예요. * 표시는 키·몸무게로 추정한 마이핏 치수예요. ★는 내 추천 사이즈예요.</p></div>`; }
+      </div>`; }
+    body = verdict + body + infoHTML;
   } else body = reviewBlock(pr.id);
   const off = officialUrl(pr, b);
   return `${topbar(pr.n, { left: 'close', right: heartBtn('product', pr.id, 'ib heart') })}
   <div class="ph" style="height:230px;border-radius:0;border-left:0;border-right:0"><span>이미지</span>${pimg(pr.id)}</div>
   <div class="pad" style="padding-bottom:12px"><button class="link" data-a="openBrand" data-v="${b.id}" style="text-decoration:none">${esc(b.n)} ›</button><div class="b" style="font-size:17px;line-height:1.4">${esc(pr.n)}${pr.real ? '<span class="tag-real">실제 상품</span>' : ''}</div><div class="num b" style="font-size:18px;margin-top:2px">${won(pr.pr)}</div>
   ${off ? `<a class="btn full flat mt12" href="${esc(off)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;justify-content:space-between"><span>${esc(b.n)} 공식 홈페이지 가기</span><span class="mute sm">↗</span></a>` : ''}</div>
-  <div class="tabs">${[['info', '상품 정보'], ['chart', '사이즈표'], ['review', `사이즈 후기 ${rs.length}`]].map(([k, l]) => `<button class="${tabName === k ? 'on' : ''}" data-a="pTab" data-v="${k}">${l}</button>`).join('')}</div>
+  <div class="tabs">${[['chart', '사이즈'], ['review', `후기 ${rs.length}`]].map(([k, l]) => `<button class="${tabName === k ? 'on' : ''}" data-a="pTab" data-v="${k}">${l}</button>`).join('')}</div>
   <div id="ptab">${body}</div><div style="height:20px"></div>`;
 };
 ACT.pTab = t => { stack.at(-1).p.tab = t.dataset.v; const y = $('#view').scrollTop; render(); $('#view').scrollTop = Math.max(y, 0); };
@@ -264,38 +270,43 @@ ACT.measureWith = t => { const pr = prodById[t.dataset.v]; M = newM(S.body ? 2 :
 
 /* ---------- 후기 상세 + 답글 ---------- */
 const REPLY_POOL = ['저도 키 163에 53kg인데 M 입었는데 딱 맞았어요!', '혹시 세탁 후에 줄어드는 편인가요?', '사진 참고했는데 어깨선이 정말 비슷하네요. 도움 됐어요 :)', '저는 한 치수 업했는데 여유 있게 입기 좋았어요.', '기장은 어느 정도인가요? 160 정도인데 고민 중이에요.', '허리가 남는다는 말씀이 참고됐어요. 감사합니다!', '같은 제품 블랙 입어봤는데 비침 거의 없었어요.', '정사이즈로 가도 될까요? 슬림핏 선호하는 편이에요.'];
-function repliesOf(r) {   // 더미 답글(후기마다 0~3개) + 내가 쓴 답글
+function repliesOf(r) {   // 더미 답글(후기마다 0~3개, 두 번째는 첫 답글에 대한 답글) + 내가 쓴 답글
   const n = hash(r.id + 'rp') % 4, out = [];
-  for (let i = 0; i < n; i++) { const h = hash(r.id + 'r' + i); out.push({ id: r.id + '-d' + i, name: nickOfU(r.id + 'r' + i), uid: uidOf(r.id + 'r' + i), h: 152 + h % 28, w: 42 + (h >> 3) % 24, text: REPLY_POOL[(h + i * 3) % REPLY_POOL.length], date: '2026.11.0' + (1 + h % 8) }); }
+  for (let i = 0; i < n; i++) { const h = hash(r.id + 'r' + i); out.push({ id: r.id + '-d' + i, parent: i === 1 ? r.id + '-d0' : null, to: i === 1 ? out[0].name : '', name: nickOfU(r.id + 'r' + i), uid: uidOf(r.id + 'r' + i), h: 152 + h % 28, w: 42 + (h >> 3) % 24, text: REPLY_POOL[(h + i * 3) % REPLY_POOL.length], date: '2026.11.0' + (1 + h % 8) }); }
   return [...out, ...(S.replies[r.id] || [])].filter(x => !S.hiddenReplies.includes(x.id));
 }
-let RP = '';
-const replyHTML = x => `<div class="rp"><span class="avatar sm">이미지</span><div class="grow"><div class="row" style="gap:6px;flex-wrap:wrap"><b class="sm">${esc(x.name)}</b><span class="xs mute">${esc(x.uid || '')}</span>${x.mine ? '<span class="pill dark">내 답글</span>' : ''}${x.h ? `<span class="xs mute">키 ${x.h} · ${x.w}kg</span>` : ''}<span class="xs mute">${x.date}</span></div><p class="sm" style="margin:2px 0 4px;white-space:pre-wrap">${esc(x.text)}</p>${x.mine ? `<button class="link xs" data-a="rpDel" data-v="${x.id}">삭제</button>` : `<button class="link xs" data-a="rpReport" data-v="${x.id}">신고</button>`}</div></div>`;
+let RP = '', RPT = null;   // RPT: 답글을 달 대상 {id, name}
+const replyHTML = (x, sub) => `<div class="rp ${sub ? 'sub' : ''}" id="rp-${x.id}"><span class="avatar sm">이미지</span><div class="grow"><div class="row" style="gap:6px;flex-wrap:wrap"><b class="sm">${esc(x.name)}</b><span class="xs mute">${esc(x.uid || '')}</span>${x.mine ? '<span class="pill dark">나</span>' : ''}${x.h ? `<span class="xs mute">${x.h} · ${x.w}kg</span>` : ''}<span class="xs mute">${x.date}</span></div><p class="sm" style="margin:2px 0 4px;white-space:pre-wrap">${x.to ? `<b>@${esc(x.to)}</b> ` : ''}${esc(x.text)}</p><span class="row" style="gap:14px"><button class="link xs" data-a="rpTo" data-v="${x.id}" data-n="${esc(x.name)}">답글</button>${x.mine ? `<button class="link xs" data-a="rpDel" data-v="${x.id}">삭제</button>` : `<button class="link xs" data-a="rpReport" data-v="${x.id}">신고</button>`}</span></div></div>`;
+const threadHTML = rps => { const top = rps.filter(x => !x.parent || !rps.some(y => y.id === x.parent)); return top.map(x => replyHTML(x) + rps.filter(y => y.parent === x.id).map(y => replyHTML(y, 1)).join('')).join(''); };
 V.review = p => {
   const r = RV.find(x => x.id === p.id), pr = prodById[r.p], u = DB.U[r.u], me = S.body, liked = S.likes.review.includes(r.id), helped = !!S.helpful[r.id], rps = repliesOf(r);
   const dh = me ? u[0] - me.h : null, dw = me ? u[1] - me.w : null;
   return `${topbar('사이즈 후기')}
   <div class="pad"><button class="card li" style="width:100%" data-a="openProduct" data-v="${pr.id}"><span class="ph" style="width:44px;height:44px;flex:none"><span>이미지</span>${pimg(pr.id)}</span><span class="grow"><span class="xs mute">${esc(brandById[pr.b].n)}</span><b class="sm ellip" style="display:block">${esc(pr.n)}</b></span><span class="chev">${ico('chev', 'ico')}</span></button>
-  <div class="row mt16" style="gap:12px"><span class="avatar">이미지</span><div class="grow"><b>${esc(nickOfU(r.u))}</b> <span class="sm mute">${uidOf(r.u)}</span><div class="sm mute">키 ${u[0]}cm · ${u[1]}kg · 선호 ${u[2] || '미확인'}</div></div>${stars(r.rt)}</div>
+  <div class="row mt16" style="gap:12px"><button class="row grow" style="gap:12px;text-align:left;background:none;border:0;padding:0;color:inherit" data-a="openUser" data-v="${r.u}"><span class="avatar">이미지</span><span class="grow"><b>${esc(nickOfU(r.u))}</b> <span class="sm mute">${uidOf(r.u)}</span><span class="sm mute" style="display:block">키 ${u[0]}cm · ${u[1]}kg · 선호 ${u[2] || '미확인'}</span></span></button>${stars(r.rt)}</div>
   ${me ? `<div class="card fill sm mt12" style="padding:10px 12px">나와 비교하면 키 <b>${sgn(dh)}cm</b>, 몸무게 <b>${sgn(dw)}kg</b> ${Math.abs(dh) <= 6 && Math.abs(dw) <= 7 ? '· <span class="pill ok">비슷한 체형</span>' : ''}</div>` : ''}
   <div class="grid3 mt16" style="gap:8px"><div class="card fill" style="padding:10px;text-align:center"><div class="xs mute">구매 사이즈</div><b style="font-size:18px">${r.sz}</b></div><div class="card fill" style="padding:10px;text-align:center"><div class="xs mute">딱 맞는 사이즈</div><b style="font-size:18px">${r.fs}</b></div><div class="card fill" style="padding:10px;text-align:center"><div class="xs mute">사이즈감</div><span class="pill ${OPCLS[r.op]}" style="margin-top:4px">${r.op}</span></div></div>
   <div class="mt16"><b>부위별 착용감</b>${r.fd ? `<div class="card mt8" style="padding:2px 14px">${Object.entries(r.fd).map(([k, v]) => `<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line)"><span class="sm">${k}</span><span class="row" style="gap:8px">${r.ez && r.ez[k] != null ? `<span class="xs mute num">${k === '총장' ? '기준 대비 ' : '여유 '}${sgn(r.ez[k])}cm</span>` : ''}<span class="pill ${FDCLS[v]}">${v}</span></span></div>`).join('')}</div>` : `<p class="sm mute">부위별 정보 미확인</p>`}</div>
   <div class="mt16"><b>후기 키워드</b><div class="kws" style="margin-top:8px">${kwOf(r).map(k => `<span class="kw">#${esc(k)}</span>`).join('')}</div></div>
   <div class="mt16"><b>후기</b><p style="margin:6px 0 0;white-space:pre-wrap">${esc(r.t)}</p><div class="xs mute mt8">${r.d || '작성일 미확인'}${r.real ? ' · <span class="tag-real" style="margin:0">실제 후기</span>' : ' · 더미 데이터'}</div></div>
-  <div class="mt16" style="border-top:1px solid var(--line);padding-top:14px"><b>답글 ${rps.length}</b><p class="xs mute" style="margin:2px 0 0">같은 고민을 한 사람끼리 사이즈 이야기를 나눠 보세요.</p>
-    <div id="rplist">${rps.map(replyHTML).join('') || `<div class="empty" style="padding:18px"><b class="en">아직 답글이 없어요</b>${S.loggedIn ? '' : ''}<span class="sm">첫 답글을 남겨 보세요</span></div>`}</div>
-    ${S.loggedIn ? `<div class="rpbox"><textarea id="rp-t" class="inp" rows="2" maxlength="300" data-i="rp" placeholder="사이즈가 궁금하거나 도움이 됐다면 답글을 남겨요">${esc(RP)}</textarea><button class="btn pri s" data-a="rpSend" data-v="${r.id}">등록</button></div><div class="xs mute" style="margin-top:4px">${S.profile.showBody && S.body ? `내 키·몸무게(${S.body.h}cm · ${S.body.w}kg)가 함께 표시돼요` : '키·몸무게 없이 닉네임만 표시돼요'}</div>`
-      : `<div class="card fill row between" style="padding:12px 14px;margin-top:10px"><span class="sm">답글은 로그인 후 남길 수 있어요</span><button class="btn s pri" data-a="goLogin">로그인</button></div>`}</div></div><div style="height:90px"></div>
+  <div class="mt16" style="border-top:1px solid var(--line);padding-top:14px"><b>답글 ${rps.length}</b>
+    <div id="rplist">${threadHTML(rps) || `<div class="empty" style="padding:18px"><b class="en">아직 답글이 없어요</b></div>`}</div>
+    ${S.loggedIn ? `${RPT ? `<div class="rpto"><span class="sm">@${esc(RPT.name)}님에게 답글</span><button class="link xs" data-a="rpToX">취소</button></div>` : ''}<div class="rpbox"><textarea id="rp-t" class="inp" rows="2" maxlength="300" data-i="rp" placeholder="${RPT ? '@' + esc(RPT.name) : '답글 남기기'}">${esc(RP)}</textarea><button class="btn pri s" data-a="rpSend" data-v="${r.id}">등록</button></div>`
+      : `<div class="card fill row between" style="padding:12px 14px;margin-top:10px"><span class="sm">로그인 후 답글을 남길 수 있어요</span><button class="btn s pri" data-a="goLogin">로그인</button></div>`}</div></div><div style="height:90px"></div>
   <div class="dock" style="position:sticky;bottom:0"><div class="row"><button class="btn grow ${liked ? 'liked' : ''}" data-a="like" data-k="review" data-v="${r.id}">${ico('heart', 'ico')} 좋아요 ${likeN(r)}</button></div></div>`;
 };
-ACT.openReview = t => go('review', { id: t.dataset.v });
+ACT.openReview = t => { RPT = null; RP = ''; go('review', { id: t.dataset.v }); };
+ACT.rpTo = t => { if (!S.loggedIn) { goLoginSheet(); return; } RPT = { id: t.dataset.v, name: t.dataset.n }; reRender(); const ta = $('#rp-t'); if (ta) { ta.focus(); ta.scrollIntoView({ block: 'center' }); } };
+ACT.rpToX = () => { RPT = null; reRender(); };
+function focusReply(id) { const el = document.getElementById('rp-' + id); if (!el) return; el.scrollIntoView({ block: 'center' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 2200); }
 INP.rp = t => { RP = t.value; };
 ACT.rpSend = t => {
   if (!S.loggedIn) { goLoginSheet(); return; }
   const text = RP.trim(); if (!text) { toast('답글 내용을 입력해 주세요'); return; }
   const id = t.dataset.v, b = S.profile.showBody ? S.body : null;
-  (S.replies[id] ||= []).push({ id: 'RP' + Date.now(), name: nick(), uid: S.profile.uid, h: b?.h, w: b?.w, text, date: today(), mine: true });
-  RP = ''; save(); toast('답글을 등록했어요'); reRender();
+  const all = repliesOf(RV.find(x => x.id === id)), tg = RPT && all.find(x => x.id === RPT.id), root = tg ? (tg.parent || tg.id) : null, nid = 'RP' + Date.now();
+  (S.replies[id] ||= []).push({ id: nid, parent: root, to: tg ? tg.name : '', name: nick(), uid: S.profile.uid, h: b?.h, w: b?.w, text, date: today(), mine: true });
+  RP = ''; RPT = null; save(); toast('답글을 등록했어요'); reRender(); focusReply(nid);
 };
 ACT.rpDel = t => { const id = t.dataset.v; Object.keys(S.replies).forEach(k => { S.replies[k] = S.replies[k].filter(x => x.id !== id); }); save(); toast('답글을 삭제했어요'); reRender(); };
 ACT.rpReport = t => sheet(`<h3>답글을 신고할까요?</h3><p class="sub">신고 사유를 선택해 주세요. 확인되는 동안 이 답글은 내 화면에서 숨겨져요.</p><div class="list" style="margin:8px -16px 0">${['스팸·광고', '욕설·비방', '개인정보 노출', '기타'].map(x => `<button class="li" data-a="rpReportDo" data-v="${t.dataset.v}" style="padding:13px 16px"><b class="sm">${x}</b><span class="chev">${ico('chev', 'ico')}</span></button>`).join('')}</div><button class="btn flat full mt12" data-a="sheetClose">취소</button>`);

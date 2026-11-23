@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="핏센스">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#ffffff">
+<title>핏센스 · 홈 · 사이즈 입력</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="index">
+<div class="app">
+<section data-view="home" data-bottom="tab">
+  <header class="nav"><span class="name">핏센스</span></header>
+  <div class="page">
+    <div class="blk hero">
+      <h1>입어보지 않아도,<br>내 옷과 딱 맞는 사이즈</h1>
+      <p>신체 사이즈와 옷 실측을 비교해 S·M·L·XL 중 맞는 사이즈를 알려드려요.</p>
+      <a class="btn" href="index.html?view=body">사이즈 측정하기</a>
+    </div>
+    <h2>어떤 옷의 사이즈가 궁금한가요?</h2>
+    <div class="cats" id="cats"></div>
+    <h2>이렇게 사용해요</h2>
+    <ol class="how">
+      <li><b>1 사이즈 입력</b>사진과 키·몸무게를 입력해요.</li>
+      <li><b>2 옷 입력</b>상품 사진과 사이즈표를 올려요.</li>
+      <li><b>3 사이즈 판정</b>추천 사이즈와 cm 차이를 확인해요.</li>
+    </ol>
+  </div>
+</section>
+
+<section data-view="body" data-bottom="cta" hidden>
+  <header class="nav"><a class="back" href="index.html">‹ 홈</a></header>
+  <div class="page">
+    <ol class="steps" aria-label="입력 단계"><li class="cur" aria-current="step">1 신체 사이즈</li><li>2 옷</li></ol>
+    <h1>전신 사진과 키·몸무게를 알려주세요</h1>
+    <div class="drop" id="bPhotoBox"></div>
+    <p class="msg" id="bPhotoMsg" role="status"></p>
+    <h2>촬영 가이드</h2>
+    <ul class="guide"><li>정면으로 서서 팔을 살짝 벌리기</li><li>몸에 붙는 옷 입기</li><li>발끝까지 나오게 2m 거리에서 찍기</li></ul>
+    <div class="row2" style="margin-top:16px">
+      <label class="fld"><span>키</span><span><input id="bHeight" type="number" inputmode="decimal" step="0.5" placeholder="160"><u>cm</u></span></label>
+      <label class="fld"><span>몸무게</span><span><input id="bWeight" type="number" inputmode="decimal" step="0.5" placeholder="52"><u>kg</u></span></label>
+    </div>
+    <p class="err" id="bErr" role="alert"></p>
+    <p class="rowlink"><a href="index.html?view=detail">상세 입력 ›</a></p>
+  </div>
+  <div class="cta"><button type="button" class="btn" id="bNext" disabled>다음: 옷 입력</button></div>
+</section>
+
+<section data-view="detail" data-bottom="cta" hidden>
+  <header class="nav"><a class="back" href="index.html?view=body">‹ 사이즈 입력</a></header>
+  <div class="page">
+    <ol class="steps" aria-label="입력 단계"><li class="cur" aria-current="step">1 신체 사이즈</li><li>2 옷</li></ol>
+    <h1>신체 사이즈를 상세하게 입력해요</h1>
+    <p class="muted">키·몸무게 외에는 아는 항목만 입력하세요. 비워 두면 칸에 보이는 값으로 추정해요.</p>
+    <div class="row2" style="margin-top:16px">
+      <label class="fld"><span>키</span><span><input id="dHeight" type="number" inputmode="decimal" step="0.5" placeholder="160"><u>cm</u></span></label>
+      <label class="fld"><span>몸무게</span><span><input id="dWeight" type="number" inputmode="decimal" step="0.5" placeholder="52"><u>kg</u></span></label>
+    </div>
+    <h2>상체</h2>
+    <div class="field-grid" id="dUpper"></div>
+    <h2>하체</h2>
+    <div class="field-grid" id="dLower"></div>
+    <details class="blk" style="margin:16px 0;background:#fff">
+      <summary style="cursor:pointer;font-weight:700;min-height:32px">측정 위치 안내 보기 ›</summary>
+      <ul class="muted" style="margin:8px 0 0;padding-left:18px;line-height:1.8">
+        <li>어깨너비: 양쪽 어깨 끝점 사이를 등 뒤에서 직선으로 재요.</li>
+        <li>팔길이: 어깨 끝에서 손목뼈까지 팔을 내린 채 재요.</li>
+        <li>가슴둘레: 가슴이 가장 두꺼운 곳을 한 바퀴 재요.</li>
+        <li>허리둘레: 배꼽 위 가장 잘록한 곳을 한 바퀴 재요.</li>
+        <li>힙둘레: 엉덩이가 가장 나온 곳을 한 바퀴 재요.</li>
+        <li>다리 안쪽 길이: 사타구니에서 발목 안쪽 복숭아뼈까지 재요.</li>
+        <li>허벅지둘레: 허벅지 가장 굵은 곳을 한 바퀴 재요.</li>
+      </ul>
+    </details>
+    <p class="err" id="dErr" role="alert"></p>
+  </div>
+  <div class="cta"><button type="button" class="btn" id="dNext" disabled>다음: 옷 입력</button></div>
+</section>
+
+<section data-view="clothes" data-bottom="cta" hidden>
+  <header class="nav"><a class="back" href="index.html?view=body">‹ 사이즈 입력</a></header>
+  <div class="page">
+    <ol class="steps" aria-label="입력 단계"><li>1 신체 사이즈</li><li class="cur" aria-current="step">2 옷</li></ol>
+    <h1>분석할 옷을 알려주세요</h1>
+    <div class="banner" id="cNoProfile" hidden role="alert"><span>먼저 신체 사이즈를 입력해 주세요.</span><a href="index.html?view=body"><b>입력하기 ›</b></a></div>
+    <div class="chips" id="cCats" role="radiogroup" aria-label="옷 카테고리"></div>
+    <h2>사진·캡처 (여러 장) <span class="muted" id="cFileCount"></span></h2>
+    <p class="muted">모델 사진과 상품 페이지의 상세 사이즈표 캡처를 함께 올릴 수 있어요. 시연 버전에서는 사진을 읽는 대신 아래 실측값(비우면 예시 값)으로 분석해요.</p>
+    <ul class="filelist" id="cFiles"></ul>
+    <label class="addfile">+ 사진·캡처 추가<input class="sr" type="file" id="cFileInput" accept="image/*" multiple></label>
+    <h2>사이즈 라벨</h2>
+    <div class="chips" id="cLabels" role="radiogroup" aria-label="사이즈 라벨"></div>
+    <label class="fld" id="cCustomBox" hidden><span class="sr">직접 입력한 사이즈 라벨</span><input id="cCustom" type="text" maxlength="12" placeholder="예: 95, 28인치" style="text-align:left"></label>
+    <details class="box" open>
+      <summary>상세 실측 (선택)</summary>
+      <div class="field-grid two" id="cFields"></div>
+      <div id="cExtra" hidden style="margin-top:8px"></div>
+    </details>
+    <p class="err" id="cErr" role="alert"></p>
+  </div>
+  <div class="cta"><button type="button" class="btn" id="cAnalyze" disabled>분석하기</button></div>
+</section>
+</div>
+<nav id="tabs" aria-label="하단 메뉴"></nav>
+<script src="app.js"></script>
+</body>
+</html>

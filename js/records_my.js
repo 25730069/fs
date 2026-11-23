@@ -8,7 +8,7 @@ V.my = () => `${topbar('마이')}
   ${S.loggedIn ? '' : `<div style="padding:0 16px 14px"><div class="card fill" style="padding:14px"><b>로그인하고 더 편하게 쓰세요</b><p class="sm mute" style="margin:4px 0 12px">후기 답글을 남기고, 기록·찜을 내 계정에 연결해요.</p><div class="row"><button class="btn pri grow" data-a="goLogin">로그인</button><button class="btn grow" data-a="goSignup">회원가입</button></div></div></div>`}
   <div class="list flat">${mrow('goMyfit', '내 신체 치수')}${mrow('goPw', '비밀번호 변경')}${mrow('goPrivacy', '개인정보 관리')}${mrow('goNset', '알림 설정')}</div>
   <div class="band"></div>
-  <div class="list flat">${mrow('goPhotos', '사진첩')}${mrow('goInq', '문의 내역')}${mrow('goRecent', '최근 본 상품')}${mrow('tutAgain', '사용 방법 다시 보기')}</div>
+  <div class="list flat">${mrow('goPhotos', '사진첩')}${mrow('goRecent', '최근 본 상품')}${mrow('goInq', '문의 내역')}</div>
   ${S.loggedIn ? `<div class="band"></div><div class="list flat"><button class="li" data-a="logout"><b>로그아웃</b></button></div>` : ''}
   <div style="height:24px"></div>`;
 ACT.goRecent = () => go('recent');
@@ -103,7 +103,7 @@ V.auth = () => {
   ${su ? `<button class="row" role="checkbox" aria-checked="${AU.agree}" data-a="auAgree" style="background:none;border:0;padding:6px 0"><span class="cbx ${AU.agree ? 'on' : ''}">${AU.agree ? '✓' : ''}</span><span class="sm ink2">(필수) 이용약관·개인정보 처리방침에 동의해요</span></button>` : ''}
   <button class="btn pri full ${su ? 'mt12' : ''}" data-a="${su ? 'doSignup' : 'doLogin'}">${su ? '가입하기' : '로그인'}</button>
   ${su ? '' : '<div class="row mt12" style="justify-content:center"><button class="link" data-a="toastPw">비밀번호를 잊었어요</button></div>'}
-  <div class="card fill hint mt16" style="padding:10px 12px">프로토타입이라 가입 정보는 이 브라우저에만 저장돼요. 로그인 없이도 둘러보고 측정할 수 있어요.</div><button class="btn flat full mt12" data-a="authSkip">로그인 없이 둘러볼게요</button></div>`;
+  <button class="btn flat full mt12" data-a="authSkip">로그인 없이 둘러볼게요</button></div>`;
 };
 V.login = V.auth; V.signup = V.auth;
 ACT.goLogin = () => { closeSheet(); AU = newAU(); go('login'); };
@@ -112,7 +112,7 @@ CHG.auMode = t => {};
 ACT.auMode = t => { const keep = { email: AU.email }; AU = newAU(); AU.email = keep.email; AU.mode = t.dataset.v === '회원가입' ? 'signup' : 'login'; reRender(); };
 INP.au = t => { AU[t.dataset.k] = t.value; };
 ACT.auAgree = () => { AU.agree = !AU.agree; reRender(); };
-ACT.toastPw = () => toast('프로토타입에서는 비밀번호 찾기가 빠져 있어요');
+ACT.toastPw = () => toast('가입한 이메일로 재설정 링크를 보내드릴게요');
 ACT.authSkip = () => authDone();
 function authDone() { stack = stack.filter(s => !['login', 'signup'].includes(s.v)); if (!stack.length) stack = [{ v: 'my', p: {} }]; render(); $('#view').scrollTop = 0; }
 ACT.doLogin = () => {
@@ -235,8 +235,8 @@ function recordListHTML() {
     if (RK === '분석' || none) return `<div class="empty"><b class="en">아직 분석 기록이 없어요</b><span class="sm">사이즈를 측정하면 여기에 쌓여요</span><div class="mt12">${emptyBtn('startMeasure', '사이즈 측정하기')}</div></div>`;
     return emptyHTML('', emptyBtn('rfClear', '필터 초기화'));
   }
-  const v = S.rview, groups = []; items.forEach(x => { const m = x.d.slice(0, 4) + '년 ' + (+x.d.slice(5, 7)) + '월'; if (!groups.length || groups.at(-1)[0] !== m) groups.push([m, []]); groups.at(-1)[1].push(x); });
-  return groups.map(([m, xs]) => sub(m) + (v === 'list' ? xs.map(recordRow).join('') : `<div class="pgrid rec v${v}" style="padding-top:10px">${xs.map(x => recordCard(x, v)).join('')}</div>`)).join('');
+  const groups = []; items.forEach(x => { const m = x.d.slice(0, 4) + '년 ' + (+x.d.slice(5, 7)) + '월'; if (!groups.length || groups.at(-1)[0] !== m) groups.push([m, []]); groups.at(-1)[1].push(x); });
+  return groups.map(([m, xs]) => sub(m) + xs.map(recordRow).join('')).join('');
 }
 V.records = () => {
   const nf = allRecordItems().filter(needFb).length, n = recordItems().length, rc = rfCount();
@@ -244,13 +244,12 @@ V.records = () => {
   <div class="tabs t0" id="rtabs">${RK_TABS.map(k => `<button class="${RK === k ? 'on' : ''}" data-a="rkTab" data-v="${k}">${k}</button>`).join('')}</div>
   <div class="row" style="padding:10px 16px 0;gap:8px"><div class="search grow"><input id="rq" class="inp" data-i="rq" value="${esc(RQ)}" placeholder="상품명·브랜드 검색" autocomplete="off">${ico('search')}</div><button class="btn flat fbtn" data-a="rfOpen" aria-label="필터">${ico('filter')}${rc ? `<span class="badge" style="position:absolute;right:-4px;top:-4px;background:var(--tight);color:#fff">${rc}</span>` : ''}</button></div>
   <div style="padding:10px 0 0"><div class="chips scroll" style="padding:0 16px">${chipsHTML(['전체', ...CATS], RC, 'rcCat')}</div></div>
-  <div class="row between" style="padding:10px 16px 2px"><span class="sm mute" id="rcnt">${n}개</span><span class="row" style="gap:10px"><span class="viewtg" role="group" aria-label="보기 방식">${[['4', '4', '4열'], ['3', '3', '3열'], ['list', '☰', '리스트']].map(([k, g, l]) => `<button class="${S.rview === k ? 'on' : ''}" data-a="rView" data-v="${k}" aria-label="${l}">${g}</button>`).join('')}</span><button class="sorttg" data-a="rSort" aria-label="정렬 바꾸기">${RSORT === 'new' ? '최신순' : '오래된순'} ⇅</button></span></div>
+  <div class="row between" style="padding:10px 16px 2px"><span class="sm mute" id="rcnt">${n}개</span><button class="sorttg" data-a="rSort" aria-label="정렬 바꾸기">${RSORT === 'new' ? '최신순' : '오래된순'} ⇅</button></div>
   <div id="rlist">${recordListHTML()}</div>
   <button class="btn pri fab round" data-a="closetNew" aria-label="내 옷장에 추가">+</button>`;
 };
 const rRefresh = () => { const l = $('#rlist'); if (l) { l.innerHTML = recordListHTML(); $('#rcnt').textContent = recordItems().length + '개'; syncCars(); } };
 INP.rq = t => { RQ = t.value; rRefresh(); };
-ACT.rView = t => { S.rview = t.dataset.v; save(); reRender(); };
 ACT.rkTab = t => { RK = t.dataset.v; reRender(); };
 ACT.rcCat = t => { RC = t.dataset.v; reRender(); };
 ACT.rSort = () => { RSORT = RSORT === 'new' ? 'old' : 'new'; reRender(); };
@@ -401,12 +400,13 @@ let NFK = '전체';
 const dstr = n => { const d = new Date(); d.setDate(d.getDate() - n); return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`; };
 function ensureNotifs() {
   if (S.notifs) return;
+  const rv = RV.find(r => hash(r.id + 'rp') % 4 >= 2), rps = rv ? repliesOf(rv) : [], rpTxt = x => x ? '“' + x.text + '”' : '';
   const ps = PR.filter(p => p.c !== '신발').slice(0, 6), pn = i => (ps[i % ps.length] || {}).n || '상품', pid = i => (ps[i % ps.length] || {}).id;
   S.notifs = [
     { id: 'N1', type: 'like', d: dstr(0), t: '14:20', read: false, text: '<b>민트초코</b>님이 내 후기를 좋아해요', sub: pn(0), pid: pid(0) },
-    { id: 'N2', type: 'reply', d: dstr(0), t: '09:05', read: false, text: '<b>한강러닝</b>님이 내 후기에 답글을 남겼어요', sub: '“저도 M이 딱 맞았어요”', pid: pid(1) },
+    { id: 'N2', type: 'reply', d: dstr(0), t: '09:05', read: false, text: rps[0] ? `<b>${rps[0].name}</b>님이 내 후기에 답글을 남겼어요` : '<b>한강러닝</b>님이 내 후기에 답글을 남겼어요', sub: rpTxt(rps[0]) || '“저도 M이 딱 맞았어요”', pid: rv ? rv.p : pid(1), rv: rv && rv.id, rp: rps[0] && rps[0].id },
     { id: 'N3', type: 'like', d: dstr(1), t: '21:40', read: false, text: '<b>오늘도핏</b>님 외 2명이 내 후기를 좋아해요', sub: pn(2), pid: pid(2) },
-    { id: 'N4', type: 'reply', d: dstr(1), t: '12:11', read: true, text: '<b>고양이집사</b>님이 내 후기에 답글을 남겼어요', sub: '“허리는 한 치수 업이 나을까요?”', pid: pid(3) },
+    { id: 'N4', type: 'reply', d: dstr(1), t: '12:11', read: true, text: rps[1] ? `<b>${rps[1].name}</b>님이 내 답글에 답글을 남겼어요` : '<b>고양이집사</b>님이 내 답글에 답글을 남겼어요', sub: rpTxt(rps[1]) || '“허리는 한 치수 업이 나을까요?”', pid: rv ? rv.p : pid(3), rv: rv && rv.id, rp: rps[1] && rps[1].id },
     { id: 'N5', type: 'inquiry', d: dstr(2), t: '16:30', read: true, text: '문의하신 브랜드 추가 요청이 <b>검토 중</b>으로 바뀌었어요', sub: '', pid: null },
     { id: 'N6', type: 'wish', d: dstr(3), t: '10:02', read: true, text: '찜한 상품에 새 후기가 올라왔어요', sub: pn(4), pid: pid(4) },
     { id: 'N7', type: 'like', d: dstr(5), t: '19:48', read: true, text: '<b>민트초코</b>님이 내 후기를 좋아해요', sub: pn(5), pid: pid(5) }
@@ -431,7 +431,7 @@ V.notifs = () => {
 };
 ACT.nfTab = t => { NFK = t.dataset.v; reRender(); };
 ACT.nfReadAll = () => { S.notifs.forEach(n => n.read = true); save(); reRender(); };
-ACT.nfOpen = t => { const n = S.notifs.find(x => x.id === t.dataset.v); if (!n) return; n.read = true; save(); if (n.type === 'inquiry') { go('inquiries'); return; } if (n.pid && prodById[n.pid]) { ACT.openProduct({ dataset: { v: n.pid } }); return; } reRender(); };
+ACT.nfOpen = t => { const n = S.notifs.find(x => x.id === t.dataset.v); if (!n) return; n.read = true; save(); if (n.type === 'inquiry') { go('inquiries'); return; } if (n.rv && RV.some(r => r.id === n.rv)) { RPT = null; RP = ''; go('review', { id: n.rv }); if (n.rp) setTimeout(() => focusReply(n.rp), 60); return; } if (n.pid && prodById[n.pid]) { ACT.openProduct({ dataset: { v: n.pid } }); return; } reRender(); };
 
 /* ---------- 찜 · 최근 본 (상단 ♡ 버튼으로 진입) ---------- */
 V.likes = p => {
@@ -499,7 +499,7 @@ V.inqDetail = p => {
     <p class="sm mute" style="margin:12px 0 0;text-align:center">${st === 2 ? '요청하신 내용이 반영됐어요. 고마워요!' : st === 1 ? '담당자가 확인하고 있어요. 처리되면 알려드릴게요.' : '문의가 접수됐어요. 곧 검토를 시작해요.'}</p></div>
   <div class="card mt12 list">${[['브랜드', q.brand], ['상품명', q.product], ['링크', q.link]].map(([k, v]) => `<div class="li" style="padding:11px 14px"><span class="mute sm" style="width:56px">${k}</span><span class="sm grow" style="word-break:break-all">${v ? esc(v) : `<span class="mute">${NO_INFO}</span>`}</span></div>`).join('')}</div>
   <div class="card fill mt12 sm" style="padding:12px 14px;white-space:pre-wrap">${q.body ? esc(q.body) : `<span class="mute">${NO_INFO}</span>`}</div>
-  ${st < 2 ? `<button class="btn flat full mt16" data-a="inqAdvance" data-v="${q.id}">(프로토타입) 다음 처리 단계로</button>` : ''}
+  ${st < 2 ? `<button class="btn flat full mt16" data-a="inqAdvance" data-v="${q.id}">처리 상태 확인하기</button>` : ''}
   <button class="link mt16" data-a="inqDel" data-v="${q.id}">이 문의 삭제</button></div>`;
 };
 ACT.inqAdvance = t => { const q = S.inquiries.find(x => x.id === t.dataset.v); q.status = INQ_STEPS[Math.min(2, stepOf(q) + 1)]; pushNotif('inquiry', `문의하신 내용이 <b>${q.status}</b>(으)로 바뀌었어요`, q.title || ''); save(); reRender(); };
@@ -552,7 +552,7 @@ const JUMPS = {
   brandList: () => { ensureBody(); BF = { ...BF, tab: 'brand', q: '', letter: null, liked: false, bc: '전체' }; st(['brand']); },
   plist: () => { ensureBody(); PL = newPL({ c: '상의', sc: '티셔츠' }); st(['brand'], ['plist']); },
   brandDetail: () => { ensureBody(); const bid = brandById[PR.find(p => p.id === pidFirst).b].id; DF = { id: bid, cat: '전체', q: '', sort: null }; st(['brand'], ['brandDetail', { id: bid }]); },
-  product: () => { ensureBody(); st(['brand'], ['product', { id: pidFirst, tab: 'info' }]); },
+  product: () => { ensureBody(); st(['brand'], ['product', { id: pidFirst, tab: 'chart' }]); },
   chart: () => { ensureBody(); st(['brand'], ['product', { id: pidFirst, tab: 'chart' }]); },
   reviews: () => { ensureBody(); LF = newLF(); st(['brand'], ['product', { id: pidFirst, tab: 'review' }]); },
   review: () => { ensureBody(); const r = (revByProd[pidFirst] || RV).find(x => repliesOf(x).length) || RV[0]; st(['brand'], ['product', { id: pidFirst, tab: 'review' }], ['review', { id: r.id }]); },
