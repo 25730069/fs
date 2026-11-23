@@ -42,7 +42,7 @@ function catSection(c) {
   const ps = PR.filter(p => p.c === c && gOk(p.g)), subs = subsFor(c);
   if (!ps.length) return '';
   return `<section id="sec-${c}" class="csec"><button class="cfold cgo" ${plAttr({ c, g: BF.g === '전체' ? null : BF.g })}><b>${c}</b><span class="cgo-a">›</span></button>
-  <div class="cbody"><div class="subgrid">${subs.map(([sc, n]) => `<button class="subtile" ${plAttr({ c, sc, g: BF.g === '전체' ? null : BF.g })}><span class="subic">이미지</span><span class="sn">${esc(sc)}</span></button>`).join('')}</div></div></section>`;
+  <div class="cbody"><div class="subgrid">${subs.map(([sc, n]) => `<button class="subtile" ${plAttr({ c, sc, g: BF.g === '전체' ? null : BF.g })}><span class="subic">${simg(sc) || '이미지'}</span><span class="sn">${esc(sc)}</span></button>`).join('')}</div></div></section>`;
 }
 function brandCatHTML() {
   const cs = catsFor().filter(c => PR.some(p => p.c === c && gOk(p.g))), rail = cs.includes(BF.rail) ? BF.rail : '전체', all = rail === '전체', list = all ? cs : [rail];
@@ -62,13 +62,13 @@ function brandListHTML() {
   items.forEach(x => {
     const ini = initOf(x.n), st = brandStat(x.id);
     if (BF.sort === 'abc' && ini !== last) { rows += `<div class="ihead">${ini}</div>`; last = ini; }
-    rows += `<div class="brand-row" style="padding:12px 8px 12px 16px;border-bottom:1px solid var(--line)"><button class="row grow" style="background:none;border:0;text-align:left;padding:0;gap:12px;min-width:0" data-a="openBrand" data-v="${x.id}"><span class="logo im">이미지</span><span class="grow" style="min-width:0"><b>${esc(x.n)}</b>${BF.g !== '전체' ? ` <span class="xs mute">${BF.g} 상품 ${gCnt(x.id)}개</span>` : ''} <span class="xs mute">${esc(x.en)}</span><span class="xs mute" style="display:block;margin-top:2px">상품 ${st.n} · 후기 ${st.rv}</span></span></button>${heartBtn('brand', String(x.id), 'ib heart')}</div>`;
+    rows += `<div class="brand-row" style="padding:12px 8px 12px 16px;border-bottom:1px solid var(--line)"><button class="row grow" style="background:none;border:0;text-align:left;padding:0;gap:12px;min-width:0" data-a="openBrand" data-v="${x.id}"><span class="logo im">이미지${bimg(x.id)}</span><span class="grow" style="min-width:0"><b>${esc(x.n)}</b>${BF.g !== '전체' ? ` <span class="xs mute">${BF.g} 상품 ${gCnt(x.id)}개</span>` : ''} <span class="xs mute">${esc(x.en)}</span><span class="xs mute" style="display:block;margin-top:2px">상품 ${st.n} · 후기 ${st.rv}</span></span></button>${heartBtn('brand', String(x.id), 'ib heart')}</div>`;
   });
   return `${idx}<div class="row between" style="padding:10px 16px 4px"><span class="sm mute">브랜드 ${items.length}개</span><button class="sorttg" data-a="bSort" aria-label="정렬 바꾸기">${BF.sort === 'pop' ? '인기순' : '가나다순'} ⇅</button></div>${rows || emptyHTML('', emptyBtn('bfReset', '필터 초기화') + ' ' + emptyBtn('askOpen', '추가 요청하기', 'data-v="브랜드"'))}`;
 }
 function brandSearchHTML() {
   const q = BF.q.trim(), bs = BR.filter(b => findIn(b.n, q) || findIn(b.en, q)), ps = PR.filter(p => findIn(p.n, q) || findIn(p.sc || '', q));
-  return `<div class="sec" style="padding-top:12px"><div class="sec-h"><h3>브랜드 ${bs.length}</h3></div></div>${bs.length ? `<div class="list">${bs.map(b => `<button class="brand-row" data-a="openBrand" data-v="${b.id}"><span class="logo im">이미지</span><span class="grow"><b>${hl(b.n, q)}</b> <span class="xs mute">${esc(b.en)}</span></span><span class="chev">${ico('chev', 'ico')}</span></button>`).join('')}</div>` : emptyHTML('', emptyBtn('askOpen', '브랜드 추가 요청하기', `data-v="브랜드|${esc(q)}"`), '20px 16px')}
+  return `<div class="sec" style="padding-top:12px"><div class="sec-h"><h3>브랜드 ${bs.length}</h3></div></div>${bs.length ? `<div class="list">${bs.map(b => `<button class="brand-row" data-a="openBrand" data-v="${b.id}"><span class="logo im">이미지${bimg(b.id)}</span><span class="grow"><b>${hl(b.n, q)}</b> <span class="xs mute">${esc(b.en)}</span></span><span class="chev">${ico('chev', 'ico')}</span></button>`).join('')}</div>` : emptyHTML('', emptyBtn('askOpen', '브랜드 추가 요청하기', `data-v="브랜드|${esc(q)}"`), '20px 16px')}
   <div class="sec" style="padding-top:12px"><div class="sec-h"><h3>상품 ${ps.length}</h3>${ps.length > 6 ? `<button class="link" ${plAttr({ q })}>전체 보기 ›</button>` : ''}</div></div>${pgridHTML(sortProducts(ps).slice(0, 9))}`;
 }
 const brandContent = () => BF.q.trim() ? brandSearchHTML() : BF.tab === 'cat' ? brandCatHTML() : brandListHTML();

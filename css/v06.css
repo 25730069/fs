@@ -262,3 +262,9 @@ button,.btn{transition:background-color .2s ease}
 .ferr6{color:#d93a40;font-size:12.5px;margin-top:6px}
 .pwr6{display:flex;gap:6px;flex-wrap:wrap;margin:-6px 0 14px}.pwr6 span{font-size:12px;color:#9a9a9a;background:#f4f4f2;border-radius:99px;padding:4px 10px}.pwr6 span.on{color:#1d7a3c;background:#e6f4ea}
 .au6-or{display:flex;align-items:center;gap:12px;margin:18px 0 12px;color:#aaa;font-size:12px}.au6-or::before,.au6-or::after{content:"";flex:1;height:1px;background:#ececec}
+
+/* 이미지 연결: 브랜드 로고·종류 사진 */
+.logo{position:relative;overflow:hidden}
+.logo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+.subic{position:relative;overflow:hidden}
+.subic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}

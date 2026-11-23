@@ -225,7 +225,7 @@ function recoProducts() {
   const ids = new Set(recoBrands().map(x => x.b.id));
   return PR.filter(p => ids.has(p.b) && genderOk(p) && oc(p) && oc(p).state === 'fit').sort((a, c) => (revByProd[c.id]?.length || 0) - (revByProd[a.id]?.length || 0) || a.id.localeCompare(c.id));
 }
-const bcard = x => `<button class="bc" data-a="openBrand" data-v="${x.b.id}"><span class="logo im">이미지</span><b>${esc(x.b.n)}</b><span class="xs mute">맞는 옷 ${x.fits}개</span></button>`;
+const bcard = x => `<button class="bc" data-a="openBrand" data-v="${x.b.id}"><span class="logo im">이미지${bimg(x.b.id)}</span><b>${esc(x.b.n)}</b><span class="xs mute">맞는 옷 ${x.fits}개</span></button>`;
 const promptCard = () => `<div class="pcard6"><div><b>${S.loggedIn ? '프로필을 완성해 보세요' : '로그인하고 추천받아 보세요'}</b><p>${S.loggedIn ? '선호 스타일을 고르면 나를 위한 상품과 브랜드가 생겨요' : '프로필을 완성하면 나를 위한 상품과 브랜드가 생겨요'}</p></div><button class="btn s pri" data-a="${S.loggedIn ? 'goProfile' : 'goLogin'}">${S.loggedIn ? '완성하기' : '로그인'}</button></div>`;
 V.home = () => {
   seedV06();
@@ -249,7 +249,7 @@ V.reco = () => {
   ps.sort(RCS === 'rev' ? (a, c) => (revByProd[c.id]?.length || 0) - (revByProd[a.id]?.length || 0) : RCS === 'low' ? (a, c) => a.pr - c.pr : (a, c) => c.pr - a.pr);
   return `${topbar('나를 위한 추천')}<div class="pad" style="padding-bottom:0">${segHTML(['상품', '브랜드'], RCK, 'rcKind', 'dk')}</div>
   ${RCK === '상품' ? `<div class="chips scroll" style="padding:14px 16px 4px">${chipsHTML(['전체', ...BCATS], RCC, 'rcc6')}</div><div class="row between" style="padding:8px 16px"><span class="sm mute">${ps.length}개</span><select class="inp sel6" data-c="rcSort" aria-label="정렬"><option value="rev" ${RCS === 'rev' ? 'selected' : ''}>후기 많은 순</option><option value="low" ${RCS === 'low' ? 'selected' : ''}>가격 낮은 순</option><option value="high" ${RCS === 'high' ? 'selected' : ''}>가격 높은 순</option></select></div><div class="cgrid">${ps.slice(0, 60).map(p => pCard(p)).join('') || '<div class="empty">조건에 맞는 상품이 없어요</div>'}</div>`
-    : `<div class="list" style="margin-top:8px">${recoBrands().map(x => `<button class="brand-row" data-a="openBrand" data-v="${x.b.id}"><span class="logo im">이미지</span><span class="grow"><b>${esc(x.b.n)}</b><span class="xs mute" style="display:block">맞는 옷 ${x.fits}개 · ${(x.b.st || []).slice(0, 2).join(' · ')}</span></span><span class="chev">${ico('chev', 'ico')}</span></button>`).join('') || '<div class="empty">추천 브랜드가 아직 없어요</div>'}</div>`}<div style="height:24px"></div>`;
+    : `<div class="list" style="margin-top:8px">${recoBrands().map(x => `<button class="brand-row" data-a="openBrand" data-v="${x.b.id}"><span class="logo im">이미지${bimg(x.b.id)}</span><span class="grow"><b>${esc(x.b.n)}</b><span class="xs mute" style="display:block">맞는 옷 ${x.fits}개 · ${(x.b.st || []).slice(0, 2).join(' · ')}</span></span><span class="chev">${ico('chev', 'ico')}</span></button>`).join('') || '<div class="empty">추천 브랜드가 아직 없어요</div>'}</div>`}<div style="height:24px"></div>`;
 };
 ACT.rcKind = t => { RCK = t.dataset.v; reRender(); }; ACT.rcc6 = t => { RCC = t.dataset.v; reRender(); }; CHG.rcSort = t => { RCS = t.value; reRender(); };
 /* 폴더 전체 */

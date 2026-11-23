@@ -355,7 +355,7 @@ ACT.closetNew = () => { AC_RESET(); FB = newFB(); FB.reqColor = true; go('closet
 ACT.closetEdit = t => { AC_RESET(); const c = S.closet.find(c => c.id === t.dataset.v); FB = { ...newFB(c.cat), ...migrateFB({ kw: [], ...JSON.parse(JSON.stringify(c)) }) }; FB.reqColor = true; if (FB.brand && !FB.brandId) { const b = BR.find(x => x.n === FB.brand); if (b) FB.brandId = b.id; else FB.brandFree = true; } if (FB.name && !FB.productId) FB.nameFree = true; go('closetAdd', { id: t.dataset.v }); };
 const cbBrandList = () => {
   const q = FB.brand || '', hits = BR.filter(b => !q.trim() || findIn(b.n, q) || findIn(b.en, q)).slice(0, 6);
-  return `<button data-a="cbFreeB"><span class="logo" style="width:34px;height:34px;font-size:16px;border-radius:9px">+</span><span class="grow"><b>(직접 입력)</b></span></button>` + hits.map(b => `<button data-a="cbPickB" data-v="${b.id}"><span class="logo im" style="width:34px;height:34px;border-radius:9px">이미지</span><span class="grow"><b>${hl(b.n, q)}</b> <span class="xs mute">${esc(b.en)}</span></span></button>`).join('');
+  return `<button data-a="cbFreeB"><span class="logo" style="width:34px;height:34px;font-size:16px;border-radius:9px">+</span><span class="grow"><b>(직접 입력)</b></span></button>` + hits.map(b => `<button data-a="cbPickB" data-v="${b.id}"><span class="logo im" style="width:34px;height:34px;border-radius:9px">이미지${bimg(b.id)}</span><span class="grow"><b>${hl(b.n, q)}</b> <span class="xs mute">${esc(b.en)}</span></span></button>`).join('');
 };
 const cbProdList = () => {
   const q = FB.name || '', hits = PR.filter(p => p.b === FB.brandId && p.c === FB.cat && (!q.trim() || findIn(p.n, q))).slice(0, 6);
@@ -439,7 +439,7 @@ V.likes = p => {
   const row = (act, id, inner, kind, lid, lead) => `<div class="li" style="padding-right:4px"><button class="row grow" style="background:none;border:0;padding:0;text-align:left;min-width:0;gap:12px" data-a="${act}" data-v="${esc(id)}">${lead}<span class="grow" style="min-width:0">${inner}</span></button>${heartBtn(kind, lid, 'ib heart')}</div>`;
   const lists = {
     product: () => L.product.map(id => prodById[id]).filter(Boolean).map(pr => row('openProduct', pr.id, `<span class="xs mute">${esc(brandById[pr.b].n)}</span><b class="sm" style="display:block">${esc(pr.n)}</b><span class="sm num">${won(pr.pr)}</span>`, 'product', pr.id, `<span class="ph" style="width:52px;height:64px;flex:none"><span>이미지</span></span>`)).join(''),
-    brand: () => L.brand.map(id => brandById[id]).filter(Boolean).map(b => row('openBrand', b.id, `<b>${esc(b.n)}</b><span class="sm mute" style="display:block">${esc(b.en)}</span>`, 'brand', String(b.id), `<span class="logo im">이미지</span>`)).join(''),
+    brand: () => L.brand.map(id => brandById[id]).filter(Boolean).map(b => row('openBrand', b.id, `<b>${esc(b.n)}</b><span class="sm mute" style="display:block">${esc(b.en)}</span>`, 'brand', String(b.id), `<span class="logo im">이미지${bimg(b.id)}</span>`)).join(''),
     review: () => L.review.map(id => RV.find(r => r.id === id)).filter(Boolean).map(r => { const u = DB.U[r.u], pr = prodById[r.p]; return row('openReview', r.id, `<span class="xs mute">${esc(pr.n)}</span><span style="display:block" class="sm"><b>키 ${u[0]} · ${u[1]}kg</b> · ${r.sz}→${r.fs} ${stars(r.rt)}</span><span class="sm mute" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(r.t)}</span>`, 'review', r.id, ''); }).join('')
   };
   const body = lists[k]();
