@@ -446,6 +446,7 @@ document.addEventListener('mousedown', e => { if (e.target.closest('#rxdd, .fmsg
 
 /* ---------- 옷 직접 입력 · 수정 (옷 정보 / 착용감 두 카드 · 브랜드 없이도 저장 가능) ---------- */
 let FM = null, FMO = null;
+const FMS = new WeakMap(); // 폼을 처음 열었을 때의 값 — 바뀐 게 없으면 뒤로가기에서 확인창 없이 바로 나가요
 const newFM = () => ({ cat: '상의', brand: '', name: '', size: '', color: '', fit: '맞아요', parts: {}, pub: true, folder: '', memo: '', id: null });
 const matchProd = () => FM && FM.brand.trim() && FM.name.trim() ? PR.find(p => brandById[p.b].n === FM.brand.trim() && p.n === FM.name.trim()) : null;
 const PARTV = p => p === '총장' ? ['짧은 편', '적당', '긴 편'] : ['타이트', '적당', '여유'];
@@ -463,6 +464,7 @@ function fmDD(k) {
 }
 function manualForm(p) {
   if (!FM || (p.id && FM.id !== p.id)) FM = newFM();
+  if (!FMS.has(FM)) FMS.set(FM, JSON.stringify(FM));
   const fd = (S.folders || []).find(f => f.id === FM.folder), mp = matchProd(), tags = MEMO_TAGS[FM.cat] || MEMO_TAGS.상의;
   return `${topbar(FM.id ? '옷 수정' : '옷 입력', { left: 'close' })}<div style="padding-top:6px">
   <div class="cb6"><h3>옷 정보</h3>
@@ -789,3 +791,14 @@ ACT.doSignup = () => {
 };
 ACT.auAgree = () => { AU.agree = !AU.agree; if (AU.err) delete AU.err.agree; reRender(); };
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-i=au]')) { const b = $('#au-go'); if (b) { e.preventDefault(); b.click(); } } });
+
+/* 뒤로가기: 새 옷 폼(FM)·단계형 추가(CA) 기준으로 "작성 중" 판단 (예전 FB 기준은 FB가 비어 오류가 났어요) */
+ACT.backConfirm = () => {
+  const t = stack.at(-1); let dirty = false;
+  try {
+    if (t.v === 'closetAdd') dirty = (t.p.id || t.p.full) ? !!(FM && FMS.get(FM) !== JSON.stringify(FM)) : !!(CA && (CA.q || CA.pid));
+    else dirty = formDirty();
+  } catch (e) { dirty = false; }
+  if (!dirty) { back(); return; }
+  sheet(`<h3>작성 중인 내용이 있어요</h3><p class="sub" style="margin:6px 0 14px">지금 나가면 입력한 내용이 저장되지 않아요.</p><div class="row" style="gap:8px"><button class="btn flat full" data-a="sheetClose">계속 작성</button><button class="btn pri full" data-a="leaveForm">나가기</button></div>`);
+};

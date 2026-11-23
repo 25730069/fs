@@ -108,7 +108,7 @@ const br = t => esc(t).replace(/\n/g, '<br>');
 function bannerHTML() {
   const b = S.body, cm = collections(), cs = COLLS.filter(c => cm[c.id].length);
   if (!cs.length) return '';
-  return `<div class="hb"><div class="hb-track" id="hb-track">${cs.map(c => `<button class="hb-s ${c.color}" data-a="openColl" data-v="${c.id}"><span class="hb-sub">${b ? `${b.h} · ${b.w} 기준 ` : ''}${cm[c.id].length}개</span><span class="hb-t">${br(c.t)}</span><span class="hb-go">모아보기 →</span></button>`).join('')}</div><span class="hb-n" id="hb-n">1 / ${cs.length}</span></div>`;
+  return `<div class="hb6"><div class="hb-track" id="hb-track">${cs.map(c => `<button class="hb-s ${c.color}" data-a="openColl" data-v="${c.id}"><span class="hb-sub">${b ? `${b.h} · ${b.w} 기준 ` : ''}${cm[c.id].length}개</span><span class="hb-t">${br(c.t)}</span><span class="hb-go">모아보기 →</span></button>`).join('')}</div><span class="hb-n" id="hb-n">1 / ${cs.length}</span></div>`;
 }
 let hbTimer = null;
 V['home$after'] = () => {

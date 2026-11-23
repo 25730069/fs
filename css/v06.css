@@ -33,7 +33,7 @@ body{font-weight:400}
 .sec{padding-top:34px}
 .sec-h h3,.h22{font-size:22px;font-weight:400;letter-spacing:-.8px;margin:0}
 /* 홈 배너 = 노랑 카드 */
-.hb{margin:26px 16px 0}
+.hb6{margin:26px 16px 0}
 .hb-track{border-radius:28px}
 .hb-s{height:300px;padding:24px 22px;border-radius:28px}
 .hb-t{font-size:36px;font-weight:300;letter-spacing:-1.4px;line-height:1.12}
@@ -268,3 +268,7 @@ button,.btn{transition:background-color .2s ease}
 .logo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
 .subic{position:relative;overflow:hidden}
 .subic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* 기록 썸네일: 사진 없을 때 카메라 아이콘 */
+.ph>.camph{position:absolute;inset:0;display:grid;place-items:center;background:var(--s1);padding:0;border-radius:inherit;color:var(--mute)}
+.camph svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}

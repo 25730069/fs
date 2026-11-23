@@ -212,7 +212,12 @@ function recordItems(opt = {}) {
     .sort((a, b) => RSORT === 'new' ? b.d.localeCompare(a.d) : a.d.localeCompare(b.d));
 }
 const rfCount = () => (RC !== '전체' ? 1 : 0) + RFS.sizes.length + (RFS.period !== '전체' ? 1 : 0);
-const recPhoto = c => (c.photos && c.photos[0]) ? `<img src="${c.photos[0].src}" alt="착용샷" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">` : c.photo ? `<img src="${c.photo}" alt="착용샷" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">` : '<span>이미지</span>';
+const recPhoto = c => {
+  const u = (c.photos && c.photos[0] && c.photos[0].src) || c.photo;
+  if (u) return `<img src="${u}" alt="착용샷" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;   /* 1순위: 내가 올린 사진 */
+  const cam = `<span class="camph">${ico('camera')}</span>`;                                                          /* 3순위: 카메라 아이콘 */
+  return cam + (c.productId ? pimg(c.productId) : '');                                                                /* 2순위: 연동 상품 종류 사진 */
+};
 const rstars = n => n ? `<span class="rt"><i>★</i> ${n}</span>` : '';
 const recInfo = x => x.t === 'a'
   ? { id: x.r.id, act: 'openRecord', c: x.r, brand: x.r.brandName, name: x.r.productName || x.r.brandName, badge: '추천 ' + x.r.rec, kind: '분석', date: x.r.date, fb: x.r.fb, need: !x.r.fb }
