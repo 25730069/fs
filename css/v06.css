@@ -247,3 +247,18 @@ button,.btn{transition:background-color .2s ease}
 .who6 b{display:block;font-size:15px;font-weight:600}.who6 small{display:block;font-size:12.5px;color:#777;margin-top:2px}
 .fcm6{padding:0 20px}.fcr6{display:flex;gap:12px;padding:10px 0}
 .up6{text-align:center;padding:6px 20px 18px}.up6a{width:84px;height:84px;margin:0 auto;display:block}
+
+/* ---- 로딩 스켈레톤 · 오프라인 안내 ---- */
+.boot-msg{padding:28px 20px;color:#8a8f98;font-size:14px}.sk-msg{text-align:center;margin-top:26px}
+.sk{display:block;background:linear-gradient(90deg,#f1f1ef 25%,#e8e8e5 40%,#f1f1ef 55%);background-size:300% 100%;border-radius:14px;animation:skm 1.4s ease-in-out infinite}
+.sk-row{display:flex;gap:12px;margin-top:14px}.sk-row .sk{flex:1}
+@keyframes skm{from{background-position:100% 0}to{background-position:0 0}}
+.offbar{position:absolute;left:0;right:0;top:0;z-index:60;background:#2a2a2a;color:#fff;font-size:12.5px;text-align:center;padding:7px 12px}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}}
+
+/* ---- 로그인 · 회원가입 ---- */
+.au6{padding:6px 22px 32px}.au6-lg{width:44px;height:44px;display:block}
+.pw6{position:relative}.pw6 .inp{width:100%}.pwt6{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;font:inherit;font-size:12.5px;font-weight:700;color:#555;padding:8px 10px}
+.ferr6{color:#d93a40;font-size:12.5px;margin-top:6px}
+.pwr6{display:flex;gap:6px;flex-wrap:wrap;margin:-6px 0 14px}.pwr6 span{font-size:12px;color:#9a9a9a;background:#f4f4f2;border-radius:99px;padding:4px 10px}.pwr6 span.on{color:#1d7a3c;background:#e6f4ea}
+.au6-or{display:flex;align-items:center;gap:12px;margin:18px 0 12px;color:#aaa;font-size:12px}.au6-or::before,.au6-or::after{content:"";flex:1;height:1px;background:#ececec}

@@ -458,7 +458,8 @@ function fmDD(k) {
   if (k === 'brand') rows = BR.filter(b => !q || findIn(b.n, q)).slice(0, 6).map(b => ({ v: b.n, l: b.n, s: '상품 ' + brandStat(b.id).n }));
   else { if (!q && !FM.brand.trim()) return ''; const bn = FM.brand.trim(); rows = PR.filter(p => (!bn || brandById[p.b].n === bn) && (!q || findIn(p.n, q))).sort((a, b) => (b.c === FM.cat) - (a.c === FM.cat)).slice(0, 6).map(p => ({ v: p.id, l: p.n, s: (bn ? '' : brandById[p.b].n + ' · ') + p.c })); }
   const exact = rows.some(r => r.l === q);
-  return `<div class="sgl fmsg">${rows.map(r => `<button class="sg" data-a="fmPick" data-k="${k}" data-v="${esc(r.v)}"><span class="sg-l">${hl(r.l, q)}</span><span class="sg-n">${esc(r.s)}</span></button>`).join('')}${q && !exact ? `<button class="sg lit" data-a="fmLit"><span class="sg-l">'${esc(q)}' 그대로 입력</span></button>` : ''}</div>`;
+  const lit = q && !exact ? `<button class="sg lit" data-a="fmLit"><span class="sg-l">${esc(q)} (직접 입력)</span></button>` : '';
+  return `<div class="sgl fmsg">${k === 'brand' ? lit : ''}${rows.map(r => `<button class="sg" data-a="fmPick" data-k="${k}" data-v="${esc(r.v)}"><span class="sg-l">${hl(r.l, q)}</span><span class="sg-n">${esc(r.s)}</span></button>`).join('')}${k === 'brand' ? '' : lit}</div>`;
 }
 function manualForm(p) {
   if (!FM || (p.id && FM.id !== p.id)) FM = newFM();
@@ -704,3 +705,72 @@ V.notifs = p => {
   if (!S.notifs.length) return nfEmpty('아직 알림이 없어요', '후기를 남기면 다른 사람의 좋아요와 답글을<br>여기에서 확인할 수 있어요', '<button class="btn pri" data-a="closetNew">첫 후기 남기기</button>');
   return _vnotifs(p);
 };
+
+
+
+/* ---------- 프로필: 로그인해야 열려요 (주소로 바로 들어와도 막아요) ---------- */
+const _vprofile = V.profile;
+V.profile = p => S.loggedIn ? (PF && PF.styles || (PF = { ...S.profile, styles: [...S.profile.styles] }), _vprofile(p)) : `${topbar('프로필')}<div class="empty" style="padding:70px 24px"><b class="en" style="font-size:20px;font-weight:300">로그인이 필요해요</b><p class="sm mute" style="margin:8px 0 16px">프로필은 로그인한 회원만 보고 수정할 수 있어요</p><button class="btn pri" data-a="goLogin">로그인</button></div>`;
+
+/* ---------- 로그인 · 회원가입 화면 (입력칸 바로 아래 오류 안내 · 비밀번호 표시 · 조건 체크 · Enter로 제출) ---------- */
+const AUID = { name: 'au-n', email: 'au-e', pw: 'au-p', pw2: 'au-p2' };
+const AUE = k => (AU.err && AU.err[k]) ? `<div class="ferr6" role="alert">${esc(AU.err[k])}</div>` : '';
+const authF = (k, label, type, ph, o = {}) => `<div class="field"><label class="f" for="${AUID[k]}">${label}</label><div class="pw6"><input id="${AUID[k]}" class="inp ${AU.err && AU.err[k] ? 'bad6' : ''}" type="${o.tog && AU.show ? 'text' : type}" data-i="au" data-k="${k}" value="${esc(AU[k])}" placeholder="${ph}" autocomplete="${o.ac || 'off'}" ${o.extra || ''}>${o.tog ? `<button type="button" class="pwt6" data-a="auShow" aria-label="비밀번호 ${AU.show ? '숨기기' : '표시'}">${AU.show ? '숨기기' : '표시'}</button>` : ''}</div>${AUE(k)}</div>`;
+const PWR = p => [['8자 이상', p.length >= 8], ['영문 포함', /[A-Za-z]/.test(p)], ['특수문자 포함', /[^A-Za-z0-9\s]/.test(p)]];
+const pwRulesHTML = p => `<div class="pwr6" id="pwr6">${PWR(p).map(([l, ok]) => `<span class="${ok ? 'on' : ''}">${ok ? '✓' : '·'} ${l}</span>`).join('')}</div>`;
+V.auth = () => {
+  const su = AU.mode === 'signup';
+  return `${topbar('', { left: 'close' })}<div class="au6">
+  <svg class="au6-lg" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="#111"/><path d="M9 7h11M9 13h7M9 7v14" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M9 17h2.5M9 20h2.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+  <h1 class="disp" style="margin:14px 0 6px;font-size:28px">${su ? '핏센스 시작하기' : '다시 만나서<br>반가워요'}</h1>
+  <p class="sub">${su ? '내 몸에 맞는 사이즈를 찾고, 같은 체형의 후기를 만나보세요.' : '로그인하면 후기·댓글을 남기고 내 정보를 이어서 볼 수 있어요.'}</p>
+  <div class="mt16">${segHTML(['로그인', '회원가입'], su ? '회원가입' : '로그인', 'auMode')}</div>
+  <form class="mt16" onsubmit="return false" novalidate>
+  ${su ? authF('name', '닉네임', 'text', '2~12자', { extra: 'maxlength="12"', ac: 'nickname' }) : ''}
+  ${authF('email', '이메일', 'email', 'name@email.com', { ac: 'email', extra: 'inputmode="email"' })}
+  ${authF('pw', '비밀번호', 'password', su ? '영문·특수문자 포함 8자 이상' : '비밀번호', { tog: true, ac: su ? 'new-password' : 'current-password' })}
+  ${su ? pwRulesHTML(AU.pw) : ''}
+  ${su ? authF('pw2', '비밀번호 확인', 'password', '비밀번호를 한 번 더 입력', { tog: false, ac: 'new-password' }) : ''}
+  ${su ? `<button type="button" class="row" role="checkbox" aria-checked="${AU.agree}" data-a="auAgree" style="background:none;border:0;padding:6px 0"><span class="cbx ${AU.agree ? 'on' : ''}">${AU.agree ? '✓' : ''}</span><span class="sm ink2">(필수) 이용약관·개인정보 처리방침에 동의해요</span></button>${AUE('agree')}` : ''}
+  <button type="button" id="au-go" class="btn pri full ${su ? 'mt12' : 'mt8'}" data-a="${su ? 'doSignup' : 'doLogin'}">${su ? '가입하기' : '로그인'}</button>
+  </form>
+  ${su ? '' : '<div class="row mt12" style="justify-content:center"><button class="link" data-a="toastPw">비밀번호를 잊었어요</button></div>'}
+  <div class="au6-or"><span>또는</span></div>
+  <button class="btn flat full" data-a="authSkip">로그인 없이 둘러볼게요</button></div>`;
+};
+V.login = V.auth; V.signup = V.auth;
+ACT.goLogin = () => { closeSheet(); AU = newAU(); AU.err = {}; AU.show = false; go('login'); };
+ACT.goSignup = () => { AU = newAU(); AU.err = {}; AU.show = false; AU.mode = 'signup'; go('login'); };
+ACT.auMode = t => { const keep = AU.email; AU = newAU(); AU.err = {}; AU.show = false; AU.email = keep; AU.mode = t.dataset.v === '회원가입' ? 'signup' : 'login'; reRender(); };
+ACT.auShow = () => { AU.show = !AU.show; reRender(); const i = $('#au-p'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } };
+INP.au = t => {
+  const k = t.dataset.k; AU[k] = t.value;
+  if (AU.err && AU.err[k]) { delete AU.err[k]; t.classList.remove('bad6'); const e = t.closest('.field') && t.closest('.field').querySelector('.ferr6'); if (e) e.remove(); }
+  if (k === 'pw') { const r = $('#pwr6'); if (r) r.outerHTML = pwRulesHTML(AU.pw); }
+};
+const authFail = errs => {
+  AU.err = errs; reRender();
+  const first = ['name', 'email', 'pw', 'pw2'].find(k => errs[k]), el = first && $('#' + AUID[first]);
+  if (el) { el.focus(); el.classList.add('shk6'); setTimeout(() => el.classList.remove('shk6'), 450); }
+};
+ACT.doLogin = () => {
+  const e = AU.email.trim(), a = S.account, er = {};
+  if (!e) er.email = '이메일을 입력해 주세요'; else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) er.email = '이메일 형식을 확인해 주세요';
+  if (!AU.pw) er.pw = '비밀번호를 입력해 주세요';
+  if (!Object.keys(er).length && (!a || a.email !== e || a.pw !== AU.pw)) er.pw = '이메일 또는 비밀번호를 확인해 주세요';
+  if (Object.keys(er).length) { authFail(er); return; }
+  S.loggedIn = true; save(); toast(`${a.name}님, 환영해요`); authDone();
+};
+ACT.doSignup = () => {
+  const n = AU.name.trim(), e = AU.email.trim(), er = {};
+  if (n.length < 2) er.name = '닉네임은 2자 이상 입력해 주세요';
+  if (!e) er.email = '이메일을 입력해 주세요'; else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) er.email = '이메일 형식을 확인해 주세요';
+  else if (S.account && S.account.email === e) er.email = '이미 가입된 이메일이에요. 로그인해 주세요';
+  if (!pwOk(AU.pw)) er.pw = `비밀번호는 ${PW_RULE}이어야 해요`;
+  if (!AU.pw2) er.pw2 = '비밀번호를 한 번 더 입력해 주세요'; else if (AU.pw !== AU.pw2) er.pw2 = '비밀번호가 서로 달라요';
+  if (!AU.agree) er.agree = '필수 약관에 동의해 주세요';
+  if (Object.keys(er).length) { authFail(er); return; }
+  S.account = { name: n, email: e, pw: AU.pw, joined: today() }; S.loggedIn = true; S.profile.nick = n; save(); toast(`${n}님, 가입을 환영해요`); authDone();
+};
+ACT.auAgree = () => { AU.agree = !AU.agree; if (AU.err) delete AU.err.agree; reRender(); };
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-i=au]')) { const b = $('#au-go'); if (b) { e.preventDefault(); b.click(); } } });

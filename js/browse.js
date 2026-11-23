@@ -10,7 +10,7 @@ ACT.openBrand = t => { DF = { id: t.dataset.v, cat: '전체', q: '', sort: null,
 ACT.openProduct = t => { openProduct(t.dataset.v); };
 const newLF = (sort = 'helpful') => ({ sort, sizes: [], h: [], w: [], op: null, similar: false, kw: [] });
 function openProduct(id, tabName = 'chart') {
-  S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 12); save();
+  S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 10); save();
   LF = newLF(); go('product', { id, tab: tabName });
 }
 
@@ -24,7 +24,6 @@ function pcardHTML(p, v = '3') {
 }
 const pgridHTML = (ps, rst = '') => ps.length ? `<div class="pgrid v3">${ps.map(p => pcardHTML(p)).join('')}</div>` : emptyHTML('', (rst ? emptyBtn(rst, '필터 초기화') + ' ' : '') + emptyBtn('askOpen', '상품 추가 요청하기', 'data-v="상품"'));
 const viewTg = () => '';   // 배열 전환(3열·2열·리스트) 버튼은 두지 않아요: 3열 고정
-ACT.pView = t => { S.pview = t.dataset.v; save(); const y = $('#view').scrollTop; reRender(); $('#view').scrollTop = y; };
 const sortSelect = (cur, c) => `<select class="inp sortsel" data-c="${c}" aria-label="정렬">${SORTS.map(s => `<option ${cur === s ? 'selected' : ''}>${s}</option>`).join('')}</select>`;
 const sortHint = s => (!S.body && ['내 핏 맞는 순', '비슷한 체형 만족도순'].includes(s)) ? `<div class="hint" style="padding:0 16px">신체 사이즈를 입력하면 이 정렬을 쓸 수 있어요.</div>` : '';
 
@@ -311,4 +310,4 @@ ACT.rpSend = t => {
 ACT.rpDel = t => { const id = t.dataset.v; Object.keys(S.replies).forEach(k => { S.replies[k] = S.replies[k].filter(x => x.id !== id); }); save(); toast('답글을 삭제했어요'); reRender(); };
 ACT.rpReport = t => sheet(`<h3>답글을 신고할까요?</h3><p class="sub">신고 사유를 선택해 주세요. 확인되는 동안 이 답글은 내 화면에서 숨겨져요.</p><div class="list" style="margin:8px -16px 0">${['스팸·광고', '욕설·비방', '개인정보 노출', '기타'].map(x => `<button class="li" data-a="rpReportDo" data-v="${t.dataset.v}" style="padding:13px 16px"><b class="sm">${x}</b><span class="chev">${ico('chev', 'ico')}</span></button>`).join('')}</div><button class="btn flat full mt12" data-a="sheetClose">취소</button>`);
 ACT.rpReportDo = t => { S.hiddenReplies.push(t.dataset.v); save(); closeSheet(); toast('신고가 접수됐어요'); reRender(); };
-function goLoginSheet() { sheet(`<h3>로그인이 필요해요</h3><p class="sub">답글은 로그인한 회원만 남길 수 있어요.</p><div class="row mt16"><button class="btn flat grow" data-a="sheetClose">나중에</button><button class="btn pri grow" data-a="goLogin">로그인</button></div>`, true); }
+function goLoginSheet(msg = '답글은 로그인한 회원만 남길 수 있어요.') { sheet(`<h3>로그인이 필요해요</h3><p class="sub">${msg}</p><div class="row mt16"><button class="btn flat grow" data-a="sheetClose">나중에</button><button class="btn pri grow" data-a="goLogin">로그인</button></div>`, true); }

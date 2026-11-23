@@ -36,7 +36,7 @@ ACT.pfSave = () => {
   const e = PF.uid === S.profile.uid ? '' : uidErr(PF.uid); if (e) { toast(e); return; }
   S.profile = { ...S.profile, ...PF, nick: PF.nick.trim() }; if (S.account) S.account.name = S.profile.nick; save(); toast('저장했어요'); back();
 };
-ACT.goProfile = () => { PF = { ...S.profile, styles: [...S.profile.styles] }; go('profile'); };
+ACT.goProfile = () => { if (!S.loggedIn) { goLoginSheet('프로필은 로그인한 회원만 보고 수정할 수 있어요.'); return; } PF = { ...S.profile, styles: [...S.profile.styles] }; go('profile'); };
 V.styles = () => `${topbar('선호 스타일')}<div class="pad"><h1 class="big">어떤 스타일을 좋아하세요?</h1><p class="sub">최대 3개까지 고를 수 있어요. 맞는 브랜드를 홈에 보여드려요.</p>
   <div class="chips" style="margin-top:14px">${STYLE_LIST.map(k => `<button class="chip ${PF.styles.includes(k) ? 'on' : ''}" data-a="styPick" data-v="${k}">${k}</button>`).join('')}</div>
   <div class="hint" style="margin-top:8px">선택 ${PF.styles.length}/3</div>
@@ -54,7 +54,7 @@ const curPw = () => (S.account || { pw: 'demo1234!' }).pw;
 let PW = { cur: '', n1: '', n2: '', err: '' }, PV = { ok: false, pw: '', err: '' };
 ACT.goPw = () => { PW = { cur: '', n1: '', n2: '', err: '' }; go('pwChange'); };
 V.pwChange = () => `${topbar('비밀번호 변경')}<div class="pad">
-  <div class="field"><label class="f" for="pw-c">현재 비밀번호</label><input id="pw-c" class="inp" type="password" autocomplete="current-password" data-i="pw" data-k="cur" value="${esc(PW.cur)}">${S.account ? '' : '<div class="hint">체험용 비밀번호: demo1234!</div>'}</div>
+  <div class="field"><label class="f" for="pw-c">현재 비밀번호</label><input id="pw-c" class="inp" type="password" autocomplete="current-password" data-i="pw" data-k="cur" value="${esc(PW.cur)}"></div>
   <div class="field"><label class="f" for="pw-n">새 비밀번호</label><input id="pw-n" class="inp" type="password" autocomplete="new-password" data-i="pw" data-k="n1" value="${esc(PW.n1)}" placeholder="${PW_RULE}"><div class="hint">${PW_RULE} 조합이에요.</div></div>
   <div class="field"><label class="f" for="pw-n2">새 비밀번호 확인</label><input id="pw-n2" class="inp" type="password" autocomplete="new-password" data-i="pw" data-k="n2" value="${esc(PW.n2)}"></div>
   <div id="pw-e" class="hint" style="color:var(--tight)" role="alert">${esc(PW.err)}</div></div>
@@ -67,7 +67,7 @@ ACT.pwSave = () => {
 };
 ACT.goPrivacy = () => { PV = { ok: false, pw: '', err: '' }; go('privacy'); };
 V.privacy = () => !PV.ok ? `${topbar('개인정보 관리')}<div class="pad"><h1 class="big">본인 확인을 위해<br>비밀번호를 입력해 주세요</h1><p class="sub">개인정보를 안전하게 지키기 위한 절차예요.</p>
-  <div class="field mt16"><label class="f" for="pv-p">비밀번호</label><input id="pv-p" class="inp" type="password" autocomplete="current-password" data-i="pv" value="${esc(PV.pw)}">${S.account ? '' : '<div class="hint">체험용 비밀번호: demo1234!</div>'}<div id="pv-e" class="hint" style="color:var(--tight)" role="alert">${esc(PV.err)}</div></div>
+  <div class="field mt16"><label class="f" for="pv-p">비밀번호</label><input id="pv-p" class="inp" type="password" autocomplete="current-password" data-i="pv" value="${esc(PV.pw)}"><div id="pv-e" class="hint" style="color:var(--tight)" role="alert">${esc(PV.err)}</div></div>
   <div class="xs mute" style="text-align:center;margin-top:10px">소셜 로그인 계정은 해당 계정으로 다시 로그인해 확인해요.</div></div><div class="dock"><button class="btn pri full" data-a="pvOk">확인</button></div>`
   : `${topbar('개인정보 관리')}<div class="pad" style="padding-top:4px">
   <div class="list flat" style="margin:0 -16px"><div class="li"><span class="grow">이메일</span><span class="mute sm">${esc(S.account ? S.account.email : 'demo@fitsense.kr').replace(/^(.{2}).*(@.*)$/, '$1***$2')}</span></div>
@@ -355,7 +355,7 @@ ACT.closetNew = () => { AC_RESET(); FB = newFB(); FB.reqColor = true; go('closet
 ACT.closetEdit = t => { AC_RESET(); const c = S.closet.find(c => c.id === t.dataset.v); FB = { ...newFB(c.cat), ...migrateFB({ kw: [], ...JSON.parse(JSON.stringify(c)) }) }; FB.reqColor = true; if (FB.brand && !FB.brandId) { const b = BR.find(x => x.n === FB.brand); if (b) FB.brandId = b.id; else FB.brandFree = true; } if (FB.name && !FB.productId) FB.nameFree = true; go('closetAdd', { id: t.dataset.v }); };
 const cbBrandList = () => {
   const q = FB.brand || '', hits = BR.filter(b => !q.trim() || findIn(b.n, q) || findIn(b.en, q)).slice(0, 6);
-  return hits.map(b => `<button data-a="cbPickB" data-v="${b.id}"><span class="logo im" style="width:34px;height:34px;border-radius:9px">이미지</span><span class="grow"><b>${hl(b.n, q)}</b> <span class="xs mute">${esc(b.en)}</span></span></button>`).join('') + `<button data-a="cbFreeB"><span class="logo" style="width:34px;height:34px;font-size:16px;border-radius:9px">+</span><span class="grow"><b>기타 (직접 입력)</b></span></button>`;
+  return `<button data-a="cbFreeB"><span class="logo" style="width:34px;height:34px;font-size:16px;border-radius:9px">+</span><span class="grow"><b>(직접 입력)</b></span></button>` + hits.map(b => `<button data-a="cbPickB" data-v="${b.id}"><span class="logo im" style="width:34px;height:34px;border-radius:9px">이미지</span><span class="grow"><b>${hl(b.n, q)}</b> <span class="xs mute">${esc(b.en)}</span></span></button>`).join('');
 };
 const cbProdList = () => {
   const q = FB.name || '', hits = PR.filter(p => p.b === FB.brandId && p.c === FB.cat && (!q.trim() || findIn(p.n, q))).slice(0, 6);
@@ -570,7 +570,7 @@ const JUMPS = {
   signup: () => { AU = newAU(); AU.mode = 'signup'; st(['my'], ['login']); },
   withdraw: () => { ensureBody(); ensureAccount(); WD = { agree: false, reason: '' }; st(['my'], ['withdraw']); }
 };
-ACT.resetAll = () => { S = freshS(); try { localStorage.removeItem(KEY); } catch (e) { } NFK = '전체'; RK = '전체'; RC = '전체'; RQ = ''; RSORT = 'new'; RFS = { sizes: [], period: '전체' }; M = null; CUR = null; BF = { tab: 'cat', q: '', letter: null, liked: false, bc: '전체', rail: '전체' }; PL = newPL(); closeSheet(); st(['home']); render(); $('#view').scrollTop = 0; };
+ACT.resetAll = () => { S = freshS(); try { localStorage.removeItem(KEY); LS_KEYS.forEach(k => localStorage.removeItem(LS_PREFIX + k)); } catch (e) { } NFK = '전체'; RK = '전체'; RC = '전체'; RQ = ''; RSORT = 'new'; RFS = { sizes: [], period: '전체' }; M = null; CUR = null; BF = { tab: 'cat', q: '', letter: null, liked: false, bc: '전체', rail: '전체' }; PL = newPL(); closeSheet(); st(['home']); render(); $('#view').scrollTop = 0; };
 
 document.addEventListener('click', e => {
   const j = e.target.closest('[data-jump]');

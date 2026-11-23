@@ -9,7 +9,7 @@
   };
   const hashOf = c => IDK[c.v] ? '#/' + c.v + '/' + encodeURIComponent(c.p[IDK[c.v]]) : '#/' + c.v;
   let pushed = 0;   // 이 방문에서 브라우저 기록에 쌓은 화면 수
-  const sync = (mode) => { try { history[mode === 'push' ? 'pushState' : 'replaceState']({ fs: stack.length }, '', hashOf(stack.at(-1))); } catch (e) { } };
+  const sync = (mode) => { try { persistFilters(); } catch (e) { } try { history[mode === 'push' ? 'pushState' : 'replaceState']({ fs: stack.length }, '', hashOf(stack.at(-1))); } catch (e) { } };
 
   const _go = go, _back = back, _tab = tab, _rep = replaceTop;
   go = (v, p) => { _go(v, p); pushed++; sync('push'); };
@@ -22,7 +22,7 @@
     const v = m[1], id = m[2] && decodeURIComponent(m[2]);
     if (IDK[v]) {
       if (!id || !exists[v](id)) { stack = [{ v: 'home', p: {} }]; render(); sync('replace'); setTimeout(() => toast('찾을 수 없는 주소예요'), 50); return true; }
-      if (v === 'product') { LF = newLF(); S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 12); save(); }
+      if (v === 'product') { LF = newLF(); S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 10); save(); }
       if (v === 'brandDetail') DF = { id, cat: '전체', q: '', sort: null, tab: 'prod' };
       if (v === 'user') UP = { tab: 'folder' };
       stack = [{ v: 'home', p: {} }, { v, p: v === 'product' ? { id, tab: 'chart' } : { [IDK[v]]: id } }];
@@ -34,5 +34,6 @@
     if (e.state && e.state.fs) { if (stack.length > 1) { stack.pop(); render(); pushed = Math.max(0, pushed - 1); } }
     else apply(location.hash);   // 주소창에서 직접 바꾼 경우
   });
+  cleanSaved(); restoreFilters();
   apply(location.hash); sync('replace');
 })();

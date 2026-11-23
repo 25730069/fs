@@ -58,12 +58,29 @@ function similarBrandPct(bid, body) {
 }
 
 /* ---------- 상태 + 저장 ---------- */
-const KEY = 'fitsense_wf_v5';
-const freshS = () => ({ rview: '3', nset: {}, notifs: null, pview: '3', inquiries: [], account: null, loggedIn: false, photos: [], bodyPhotoId: null, replies: {}, hiddenReplies: [], tutorialHide: false, bodyPhoto: null, body: null, bodyHistory: [], profile: { nick: '핏센스 유저', uid: 'fit_user01', styles: [], stylePub: true, img: null, gender: '여성', bio: '', showBody: true }, records: [], closet: [], likes: { brand: [], product: [], review: [] }, helpful: {}, recent: [], seeded: false });
+const KEY = 'fitsense_wf_v5';   // 옛 버전의 통째 저장 키: 찜·최근 본만 새 키로 옮기고 지워요(개인정보가 남지 않게)
+const freshS = () => ({ nset: {}, notifs: null, inquiries: [], account: null, loggedIn: false, photos: [], bodyPhotoId: null, replies: {}, hiddenReplies: [], tutorialHide: false, bodyPhoto: null, body: null, bodyHistory: [], profile: { nick: '핏센스 유저', uid: 'fit_user01', styles: [], stylePub: true, img: null, gender: '여성', bio: '', showBody: true }, records: [], closet: [], likes: { brand: [], product: [], review: [], folder: [] }, helpful: {}, recent: [], seeded: false });
 let S = freshS();
-try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(freshS(), JSON.parse(raw)); } catch (e) { }
-S.profile = Object.assign(freshS().profile, S.profile); S.nset = S.nset || {}; if (!['4', '3', 'list'].includes(S.rview)) S.rview = '3';
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } };
+(function loadSaved() {
+  const fav = read('favorites', null), rec = read('recent', null), ui = read('ui', null);
+  let old = null;
+  try { const raw = localStorage.getItem(KEY); if (raw !== null) { try { old = JSON.parse(raw); } catch (e) { } localStorage.removeItem(KEY); } } catch (e) { }
+  if (!_isObj(old)) old = null;
+  const f = _isObj(fav) ? fav : (old && _isObj(old.likes) ? old.likes : {});
+  ['product', 'brand', 'review', 'folder'].forEach(k => { S.likes[k] = _idArr(f[k]); });
+  S.recent = _idArr(rec !== null ? rec : (old && old.recent)).slice(0, 10);
+  const bd = read('body', null), ob = old && _isObj(old.body) ? old.body : null, b0 = _isObj(bd) ? bd : ob;
+  if (b0 && +b0.h >= 100 && +b0.h <= 230 && +b0.w >= 25 && +b0.w <= 200) S.body = { h: +b0.h, w: +b0.w, pref: typeof b0.pref === 'string' ? b0.pref : '기본 핏', updated: typeof b0.updated === 'string' ? b0.updated : today() };
+  const u = _isObj(ui) ? ui : (old || {});
+  if (_isObj(u.nset)) S.nset = u.nset; if (typeof u.tutorialHide === 'boolean') S.tutorialHide = u.tutorialHide;
+  if (old) setTimeout(() => save(), 0);      // 옛 키에서 옮겨온 값을 새 키로 저장
+})();
+const save = () => {
+  write('favorites', { product: S.likes.product, brand: S.likes.brand, review: S.likes.review, folder: S.likes.folder || [] });
+  write('recent', S.recent.slice(0, 10));
+  write('ui', { tutorialHide: S.tutorialHide, nset: S.nset });
+  if (S.body) write('body', { h: S.body.h, w: S.body.w, pref: S.body.pref, updated: S.body.updated }); else remove('body');
+};
 
 /* ---------- 업로드 사진 보관함(전신·사이즈표·착용샷). 사진마다 따로 지울 수 있다 ---------- */
 function addPhoto(kind, src) { const id = 'P' + Date.now() + Math.floor(Math.random() * 1000); S.photos.unshift({ id, kind, src, date: today() }); return id; }
@@ -142,6 +159,7 @@ function buildAnalysis(d) {
     }
   }
   else if (Object.keys(typed).length >= 2) { given = { [d.size]: typed }; source = 'manual'; }
+  else if (d.aiChart && Object.keys(d.aiChart).length) { given = JSON.parse(JSON.stringify(d.aiChart)); source = 'ai'; }
   else { given = { M: SAMPLE_M[cat] }; source = 'sample'; }
   const { chart, ex } = fullChart(cat, given);
   const bv = bodyVals(S.body), pref = S.body?.pref || '기본 핏', pi = persInfo(), rec = recommend(cat, chart, bv, pref, fitShift(prod, pi.shift));

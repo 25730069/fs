@@ -6,6 +6,8 @@
    중 하나로 돌려준다. 점수가 가장 낮은 사이즈를 무조건 추천하지 않기 위한 단계. */
 const WORD = { tight: '작아요', loose: '커요', short: '짧아요', long: '길어요' };
 const LEN_PART = { 소매: 1, 총장: 1 };
+const hasJong = s => { const c = String(s).trim().slice(-1).charCodeAt(0); return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 !== 0; };
+const iga = s => hasJong(s) ? '이' : '가', eunn = s => hasJong(s) ? '은' : '는';
 const josa = s => (['M', 'L', 'XL'].includes(s) ? '이' : '가');
 const partWord = r => {
   if (r.v === 'tight') return LEN_PART[r.part] ? '짧아요' : '작아요';
@@ -50,7 +52,7 @@ function outcomeText(o) {
   if (o.state === 'fit') return { head: `${b}${josa(b)} 맞아요`, sub: '' };
   if (o.state === 'caution') { const w = o.worst; return { head: `${b}${josa(b)} 맞아요`, sub: `${w.part}만 ${rowCm(w)}cm ${partWord(w)}` }; }
   const w = o.worst || o.bad[0];
-  return { head: '맞는 사이즈가 없어요', sub: w ? `${b}도 ${w.part}이 ${rowCm(w)}cm ${partWord(w)}` : '' };
+  return { head: '맞는 사이즈가 없어요', sub: w ? `${b}도 ${w.part}${iga(w.part)} ${rowCm(w)}cm ${partWord(w)}` : '' };
 }
 /* 판정 막대(−2·허용폭 ~ +2·허용폭) 위의 점 위치(%) */
 const barPos = r => r.len || r.tol == null ? 50 : Math.max(6, Math.min(94, 50 + (r.diff / (r.tol * 3)) * 50));
@@ -66,7 +68,7 @@ function sizeLabel(o, x) {
 function neighborText(o, cat, s) {
   const x = o.per.find(q => q.s === s); if (!x) return null;
   const w = x.bad[0], mp = mainPart(cat), mr = x.ev.rows.find(r => r.part === mp);
-  const head = w ? `${w.part}이 ${partWord(w)}` : '맞아요';
+  const head = w ? `${w.part}${iga(w.part)} ${partWord(w)}` : '맞아요';
   return { s, head, sub: mr && mr.ease != null ? `${mp} 여유 ${r1(mr.ease)}cm` : '' };
 }
 /* 비슷한 체형 후기 */

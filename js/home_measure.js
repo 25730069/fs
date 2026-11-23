@@ -173,9 +173,9 @@ ACT.goLikes = () => { if (stack.at(-1).v !== 'likes') go('likes'); };
 
 /* ---------- 사이즈 측정 ---------- */
 let M = null;
-const newM = (step = 1) => ({ step, cat: '상의', brandId: null, brandText: '', productId: null, name: '', link: '', photo: null, photoId: null, imgs: [], size: 'M', rows: {}, touched: false, open: false });
+const newM = (step = 1) => ({ step, cat: '상의', brandId: null, brandFree: false, brandText: '', productId: null, name: '', link: '', photo: null, photoId: null, imgs: [], size: 'M', rows: {}, touched: false, open: false });
 const mRows = () => PARTS[M.cat].filter(p => M.rows[p] !== undefined && M.rows[p] !== '').length;
-function mReady() { return !!(M.brandId || M.brandText.trim()) && !!(M.photo || M.productId || mRows() >= 2); }
+function mReady() { return !!(M.brandId || M.brandFree || M.brandText.trim()) && !!(M.photo || M.productId || mRows() >= 2); }
 const stepper = s => `<div class="stepper"><button class="${s === 1 ? 'on' : 'done'}" data-a="mStep" data-v="1">1 사이즈 입력</button><button class="${s === 2 ? 'on' : ''}" data-a="mStep" data-v="2">2 옷 입력</button><div>3 결과</div></div>`;
 V.measure = () => {
   if (!M) M = newM();
@@ -189,7 +189,7 @@ V.measure = () => {
   <div class="card fill row between" style="padding:11px 14px"><span class="sm"><b>내 신체</b> ${S.body ? `${S.body.h}cm · ${S.body.w}kg · ${esc(S.body.pref)}` : '미입력'}${S.bodyPhoto ? ' · 사진 있음' : ''}</span><button class="link" data-a="mStep" data-v="1">수정</button></div>
   <div class="field mt16"><label class="f">옷 타입</label><div class="chips">${chipsHTML(CATS, M.cat, 'mCat')}</div></div>
   <div class="field" style="position:relative"><label class="f" for="ta">브랜드</label>
-    <div class="search"><input id="ta" class="inp" autocomplete="off" placeholder="브랜드 검색 (초성 가능 · 예: ㅇㄴㅋㄹ)" data-i="ta" value="${esc(M.brandText)}" onfocus="taShow()">${ico('search')}</div>
+    <div class="search"><input id="ta" class="inp" autocomplete="off" placeholder="${M.brandFree ? '(직접 입력)' : '브랜드 검색 (초성 가능 · 예: ㅇㄴㅋㄹ)'}" data-i="ta" value="${esc(M.brandText)}" onfocus="taShow()">${ico('search')}</div>
     <div id="ta-list" hidden></div>
     </div>
   ${prods.length ? `<div class="field"><label class="f" for="msel">상품 불러오기 <span class="mute b sm">선택</span></label><select id="msel" class="inp" data-c="mProd"><option value="">다른 사이트의 상품이에요 (직접 올릴게요)</option>${prods.map(p => `<option value="${p.id}" ${M.productId === p.id ? 'selected' : ''}>${esc(p.n)}</option>`).join('')}</select></div>` : ''}
@@ -237,14 +237,13 @@ ACT.mDemo = () => { setDemoM(2); reRender(); };
 function taList() {
   const q = M.brandText, cnt = id => PR.filter(p => p.b === id && p.c === M.cat).length;
   const hits = BR.map(b => ({ b, m: findIn(b.n, q) || findIn(b.en, q) })).filter(x => !q.trim() || x.m);
-  let h = hits.slice(0, 6).map(({ b }) => `<button data-a="taPick" data-v="${b.id}"><span class="logo im" style="width:34px;height:34px;font-size:12px;border-radius:9px">이미지</span><span class="grow"><b>${hl(b.n, q)}</b> <span class="xs mute">${esc(b.en)}</span></span><span class="xs mute">${M.cat} ${cnt(b.id)}개</span></button>`).join('');
-  if (q.trim() && !BR.some(b => b.n === q.trim())) h += `<button data-a="taFree"><span class="logo" style="width:34px;height:34px;font-size:16px;border-radius:9px">+</span><span class="grow"><b>"${esc(q.trim())}"</b> 직접 입력</span></button>`;
-  return h || '<div class="empty" style="padding:16px">검색 결과가 없어요</div>';
+  let h = `<button data-a="taFree"><span class="logo" style="width:34px;height:34px;font-size:16px;border-radius:9px">+</span><span class="grow"><b>${q.trim() && !BR.some(b => b.n === q.trim()) ? esc(q.trim()) + ' ' : ''}(직접 입력)</b></span></button>` + hits.slice(0, 6).map(({ b }) => `<button data-a="taPick" data-v="${b.id}"><span class="logo im" style="width:34px;height:34px;font-size:12px;border-radius:9px">이미지</span><span class="grow"><b>${hl(b.n, q)}</b> <span class="xs mute">${esc(b.en)}</span></span><span class="xs mute">${M.cat} ${cnt(b.id)}개</span></button>`).join('');
+  return h;
 }
 window.taShow = () => { const l = $('#ta-list'); if (!l) return; l.className = 'ta-list'; l.hidden = false; l.innerHTML = taList(); };
 INP.ta = t => { M.brandText = t.value; M.brandId = null; M.productId = null; taShow(); mUpdate(); };
-ACT.taPick = t => { const b = brandById[t.dataset.v]; M.brandId = b.id; M.brandText = b.n; M.productId = null; M.rows = {}; reRender(); };
-ACT.taFree = () => { M.brandId = null; const l = $('#ta-list'); if (l) l.hidden = true; reRender(); };
+ACT.taPick = t => { const b = brandById[t.dataset.v]; M.brandFree = false; M.brandId = b.id; M.brandText = b.n; M.productId = null; M.rows = {}; reRender(); };
+ACT.taFree = () => { M.brandId = null; M.brandFree = true; M.productId = null; const l = $('#ta-list'); if (l) l.hidden = true; reRender(); };
 document.addEventListener('click', e => { const l = $('#ta-list'); if (l && !l.hidden && !e.target.closest('#ta-list') && e.target.id !== 'ta') l.hidden = true; });
 ACT.mGo = () => { if (mReady()) runAnalysis(); };
 function runAnalysis() { CUR = buildAnalysis(M); RT = 'viz'; RE = false; go('analyzing', { next: { v: 'result', p: {} } }); }
@@ -267,7 +266,7 @@ function summarize(ev, sel, rec) {
   const bad = ev.rows.filter(r => r.v !== 'ok' && r.v !== 'na');
   const head = sel === rec ? `${sel} 사이즈가 가장 잘 맞아요. ` : `${sel} 사이즈는 추천(${rec})과 달라요. `;
   if (!bad.length) return head + '비교한 모든 부위가 적당해요.';
-  return head + bad.map(r => `${r.part}은 ${VLABEL[r.v]}`).join(', ') + '이에요.';
+  return head + bad.map(r => `${r.part}${iga(r.part)} ${partWord(r)}.`).join(' ');
 }
 const persText = A => { const e = Object.entries(A.pers?.shift || {}); return e.length ? e.map(([k, v]) => `${k} ${v > 0 ? '더 여유롭게' : '더 몸에 맞게'}`).join(' · ') : ''; };
 const partRowHTML = r => {
