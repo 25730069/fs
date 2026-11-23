@@ -272,3 +272,7 @@ button,.btn{transition:background-color .2s ease}
 /* 기록 썸네일: 사진 없을 때 카메라 아이콘 */
 .ph>.camph{position:absolute;inset:0;display:grid;place-items:center;background:var(--s1);padding:0;border-radius:inherit;color:var(--mute)}
 .camph svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* 상품 카드 찜 하트: 원 안에 하트 */
+.pcard .hb{width:28px;height:28px;background:rgba(255,255,255,.94);box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.pcard .hb svg{width:15px;height:15px}

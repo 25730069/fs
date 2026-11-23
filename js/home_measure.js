@@ -323,4 +323,4 @@ V.saved = p => {
   <div class="card fill pad mt16 sm" style="text-align:left;width:100%">기록에 저장됐어요. 나중에 실제로 입어본 느낌을 <b>피드백</b>으로 남기면 내 추천에 반영돼요.</div>
   <div style="width:100%;margin-top:22px"><button class="btn pri full" data-a="savedRecords">기록 보러가기</button><div class="row mt8"><button class="btn flat grow" data-a="mNew">다른 상품 측정</button><button class="btn flat grow" data-a="goTab" data-v="home">홈으로</button></div></div></div>`;
 };
-ACT.savedRecords = () => { RK = '전체'; RC = '전체'; RQ = ''; RFS = { sizes: [], period: '전체' }; tab('records'); };
+ACT.savedRecords = () => { RK = '분석'; RC = '전체'; RQ = ''; RFS = { sizes: [], period: '전체' }; tab('records'); };
