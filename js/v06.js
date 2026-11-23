@@ -708,9 +708,24 @@ V.notifs = p => {
 
 
 
-/* ---------- 프로필: 로그인해야 열려요 (주소로 바로 들어와도 막아요) ---------- */
-const _vprofile = V.profile;
-V.profile = p => S.loggedIn ? (PF && PF.styles || (PF = { ...S.profile, styles: [...S.profile.styles] }), _vprofile(p)) : `${topbar('프로필')}<div class="empty" style="padding:70px 24px"><b class="en" style="font-size:20px;font-weight:300">로그인이 필요해요</b><p class="sm mute" style="margin:8px 0 16px">프로필은 로그인한 회원만 보고 수정할 수 있어요</p><button class="btn pri" data-a="goLogin">로그인</button></div>`;
+/* ---------- 프로필: 로그인해야 열려요. 로그아웃 상태면 로그인 페이지로 보내고, 로그인하면 프로필로 이어가요 ---------- */
+const _vprofile = V.profile, _goProfile = ACT.goProfile;
+ACT.goProfile = () => {
+  if (!S.loggedIn) { closeSheet(); AU = newAU(); AU.err = {}; AU.show = false; AU.next = 'profile'; go('login'); return; }
+  _goProfile();
+};
+V.profile = p => {
+  if (!S.loggedIn) { AU.next = 'profile'; if (!AU.err) AU.err = {}; return V.auth(); }   // 주소·뒤로가기로 들어와도 로그인 페이지를 보여줘요
+  if (!(PF && PF.styles)) PF = { ...S.profile, styles: [...S.profile.styles] };
+  return _vprofile(p);
+};
+const _authDone = authDone;
+authDone = function () {
+  const next = AU.next; AU.next = null;
+  _authDone();
+  if (S.loggedIn && next === 'profile') setTimeout(() => ACT.goProfile(), 0);
+  else if (!S.loggedIn && stack.at(-1).v === 'profile') back();     // "로그인 없이 둘러볼게요"
+};
 
 /* ---------- 로그인 · 회원가입 화면 (입력칸 바로 아래 오류 안내 · 비밀번호 표시 · 조건 체크 · Enter로 제출) ---------- */
 const AUID = { name: 'au-n', email: 'au-e', pw: 'au-p', pw2: 'au-p2' };
@@ -741,7 +756,7 @@ V.auth = () => {
 V.login = V.auth; V.signup = V.auth;
 ACT.goLogin = () => { closeSheet(); AU = newAU(); AU.err = {}; AU.show = false; go('login'); };
 ACT.goSignup = () => { AU = newAU(); AU.err = {}; AU.show = false; AU.mode = 'signup'; go('login'); };
-ACT.auMode = t => { const keep = AU.email; AU = newAU(); AU.err = {}; AU.show = false; AU.email = keep; AU.mode = t.dataset.v === '회원가입' ? 'signup' : 'login'; reRender(); };
+ACT.auMode = t => { const keep = AU.email, next = AU.next; AU = newAU(); AU.err = {}; AU.show = false; AU.email = keep; AU.next = next; AU.mode = t.dataset.v === '회원가입' ? 'signup' : 'login'; reRender(); };
 ACT.auShow = () => { AU.show = !AU.show; reRender(); const i = $('#au-p'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } };
 INP.au = t => {
   const k = t.dataset.k; AU[k] = t.value;
